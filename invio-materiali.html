@@ -164,14 +164,14 @@
 
             <div class="pt-2 border-t border-zinc-800/80 space-y-2">
                 <label class="flex items-start gap-2 cursor-pointer">
-                    <input type="checkbox" id="consensoPrivacy" class="mt-0.5 h-3.5 w-3.5 rounded border-zinc-800 bg-zinc-900 text-[#00ff66] focus:ring-0 focus:ring-offset-0 accent-[#00ff66]">
+                    <input type="checkbox" id="consensoPrivacy" onchange="aggiornaStatoPulsante()" class="mt-0.5 h-3.5 w-3.5 rounded border-zinc-800 bg-zinc-900 text-[#00ff66] focus:ring-0 focus:ring-offset-0 accent-[#00ff66]">
                     <span class="text-[10px] text-zinc-400 leading-tight">
                         Accetto la <a href="privacy.html" class="text-[#00ff66] hover:underline font-bold">Privacy Policy</a> e le <a href="note-legali.html" class="text-[#00ff66] hover:underline font-bold">Note Legali</a>. *
                     </span>
                 </label>
 
                 <label class="flex items-start gap-2 cursor-pointer">
-                    <input type="checkbox" id="consensoMedia" class="mt-0.5 h-3.5 w-3.5 rounded border-zinc-800 bg-zinc-900 text-[#00ff66] focus:ring-0 focus:ring-offset-0 accent-[#00ff66]">
+                    <input type="checkbox" id="consensoMedia" onchange="aggiornaStatoPulsante()" class="mt-0.5 h-3.5 w-3.5 rounded border-zinc-800 bg-zinc-900 text-[#00ff66] focus:ring-0 focus:ring-offset-0 accent-[#00ff66]">
                     <span class="text-[10px] text-zinc-400 leading-tight">
                         Autorizzo le riprese foto/video durante l'evento e la loro pubblicazione sui canali ufficiali e media store di CintheC. *
                     </span>
@@ -213,7 +213,7 @@
                 percorsoFile = "moduli/liberatoria-visita-pre-match-uomo.pdf";
                 nomeModulo = "Liberatoria Visita Pre-Match - UOMO";
             } else if (valore === 'donna') {
-                percorsoFile = "moduli/liberatoria-visita-pre-match-donna.pdf";
+                percorsoFile = "moduli/liberatoria-visita-pre-match.pdf"; // CORRETTO: punta al nome esatto del tuo file
                 nomeModulo = "Liberatoria Visita Pre-Match - DONNA";
             }
 
@@ -225,17 +225,36 @@
             link.click();
             document.body.removeChild(link);
 
-            // Sblocca il form
+            // Segna come scaricato e aggiorna lo stato del pulsante
             scaricatoModulo = true;
-            const btn = document.getElementById('btnInvia');
-            btn.disabled = false;
-            btn.className = "w-full bg-[#00ff66] hover:bg-[#00cc52] text-black font-black text-xs uppercase py-2.5 rounded-xl transition cursor-pointer shadow-[0_0_12px_rgba(0,255,102,0.3)]";
-            btn.innerText = "Invia Dati al CintheC";
-            document.getElementById('avvisoAttesa').classList.remove('hidden');
-            
+            aggiornaStatoPulsante();
+
             const avviso = document.getElementById('avvisoDownload');
-            avviso.innerHTML = `✅ Modulo "${nomeModulo}" scaricato. Invio sbloccato!`;
+            avviso.innerHTML = `✅ Modulo "${nomeModulo}" scaricato.`;
             avviso.className = "text-[9px] text-[#00ff66] text-center font-bold";
+        }
+
+        function aggiornaStatoPulsante() {
+            const btn = document.getElementById('btnInvia');
+            const consensoPrivacy = document.getElementById('consensoPrivacy').checked;
+            const consensoMedia = document.getElementById('consensoMedia').checked;
+
+            // Il pulsante si sblocca SOLO se è stato scaricato il modulo E spuntate entrambe le caselle
+            if (scaricatoModulo && consensoPrivacy && consensoMedia) {
+                btn.disabled = false;
+                btn.className = "w-full bg-[#00ff66] hover:bg-[#00cc52] text-black font-black text-xs uppercase py-2.5 rounded-xl transition cursor-pointer shadow-[0_0_12px_rgba(0,255,102,0.3)]";
+                btn.innerText = "Invia Dati al CintheC";
+                document.getElementById('avvisoAttesa').classList.remove('hidden');
+            } else {
+                btn.disabled = true;
+                btn.className = "w-full bg-zinc-700 text-zinc-400 font-black text-xs uppercase py-2.5 rounded-xl transition cursor-not-allowed shadow-none";
+                if (!scaricatoModulo) {
+                    btn.innerText = "🔒 Scarica il modulo per sbloccare l'invio";
+                } else {
+                    btn.innerText = "🔒 Spunta le caselle obbligatorie per procedere";
+                }
+                document.getElementById('avvisoAttesa').classList.add('hidden');
+            }
         }
 
         function impostaModalitaMusica(modo) {
@@ -264,13 +283,8 @@
             const consensoPrivacy = document.getElementById('consensoPrivacy').checked;
             const consensoMedia = document.getElementById('consensoMedia').checked;
 
-            if(!consensoPrivacy) {
-                alert('È necessario accettare la Privacy Policy e le Note Legali per procedere.');
-                return;
-            }
-
-            if(!consensoMedia) {
-                alert('È necessario confermare la liberatoria foto e video per procedere.');
+            if(!consensoPrivacy || !consensoMedia) {
+                alert('È necessario accettare tutte le condizioni obbligatorie per procedere.');
                 return;
             }
 
