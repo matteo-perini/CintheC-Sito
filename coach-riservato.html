@@ -32,7 +32,7 @@
 </head>
 <body class="antialiased selection:bg-[#00ff66] selection:text-black min-h-screen p-4 sm:p-5 flex flex-col justify-center items-center">
 
-    <!-- SCHERMATA DI LOGIN (CAMPI PULITI SENZA VALORI PREDEFINITI) -->
+    <!-- SCHERMATA DI LOGIN -->
     <div id="loginScreen" class="max-w-md w-full glass-panel p-6 rounded-2xl space-y-4 shadow-2xl">
         <div class="text-center space-y-1">
             <span class="text-[#00ff66] font-black text-[9px] tracking-widest uppercase bg-[#00ff66]/10 px-2.5 py-1 rounded-full border border-[#00ff66]/30">
@@ -434,7 +434,6 @@
                     let pesoStr = m.peso ? String(m.peso).trim() : '';
                     if (pesoStr && !pesoStr.toLowerCase().includes('kg')) { pesoStr += ' kg'; }
 
-                    // Riconoscimento intelligente della Musica (File vs Testo)
                     let musicaDisplay = '';
                     let audioLink = m.audioFileUrl || m.audioFile;
                     if (audioLink) {
@@ -519,7 +518,6 @@
             }
         };
 
-        // Funzione per gestire lo switch tra File Audio e Testo
         window.switchMusicaMode = function(mode) {
             modalMusicaMode = mode;
             const btnFile = document.getElementById('btnTabFile');
@@ -554,7 +552,6 @@
             document.getElementById('editInstagram').value = atleta.instagram || '';
             document.getElementById('editMusicaTesto').value = atleta.musicaTesto || '';
 
-            // Imposta lo stato iniziale dello switch in base a cosa è salvato
             if (atleta.musicaTesto && !atleta.audioFileUrl && !atleta.audioFile) {
                 switchMusicaMode('text');
             } else {
@@ -570,7 +567,6 @@
                 infoFile.className = "text-[9px] text-zinc-400 italic";
             }
             
-            // Pulisce i file input
             document.getElementById('editFotoFile').value = '';
             document.getElementById('editAudioFile').value = '';
             document.getElementById('editCertFile').value = '';
@@ -602,10 +598,9 @@
                     instagram: document.getElementById('editInstagram').value.trim()
                 };
 
-                // Gestione Musica in base alla modalità scelta con lo switch
                 if (modalMusicaMode === 'text') {
                     updateData.musicaTesto = document.getElementById('editMusicaTesto').value.trim();
-                    updateData.audioFileUrl = ""; // Pulisce l'eventuale file se ha scelto il testo
+                    updateData.audioFileUrl = "";
                 } else {
                     const audioInput = document.getElementById('editAudioFile');
                     if (audioInput.files && audioInput.files[0]) {
@@ -613,11 +608,10 @@
                         const storageRef = ref(storage, `atleti/${docId}/audio_${Date.now()}_${file.name}`);
                         await uploadBytes(storageRef, file);
                         updateData.audioFileUrl = await getDownloadURL(storageRef);
-                        updateData.musicaTesto = ""; // Pulisce il testo se ha caricato un file
+                        updateData.musicaTesto = "";
                     }
                 }
 
-                // Gestione caricamento Foto su Storage se selezionata
                 const fotoInput = document.getElementById('editFotoFile');
                 if (fotoInput.files && fotoInput.files[0]) {
                     const file = fotoInput.files[0];
@@ -626,7 +620,6 @@
                     updateData.fotoUrl = await getDownloadURL(storageRef);
                 }
 
-                // Gestione Certificato Medico PDF su Storage
                 const certInput = document.getElementById('editCertFile');
                 if (certInput.files && certInput.files[0]) {
                     const file = certInput.files[0];
@@ -636,7 +629,6 @@
                     updateData.certificatoPdf = JSON.stringify({ nomeFile: file.name, url: downloadUrl });
                 }
 
-                // Gestione Liberatoria Firmata PDF su Storage
                 const libInput = document.getElementById('editLibFile');
                 if (libInput.files && libInput.files[0]) {
                     const file = libInput.files[0];
