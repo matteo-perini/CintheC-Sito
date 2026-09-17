@@ -58,11 +58,11 @@
             </div>
         </div>
 
-        <p class="text-[10px] text-zinc-400 font-medium text-center" id="sottotitoloTesto">Scarica il modulo corretto, compila i dati e carica i documenti richiesti.</p>
+        <p class="text-[10px] text-zinc-400 font-medium text-center" id="sottotitoloTesto">Scarica il modulo se ti serve, compila i dati e carica i documenti richiesti.</p>
 
-        <div id="areaDownload" class="bg-zinc-950/70 p-3 rounded-xl border border-amber-500/30 space-y-2.5">
-            <div class="flex items-center gap-1.5 text-amber-400 text-[9px] font-bold uppercase">
-                <i class="fa-solid fa-triangle-exclamation"></i> Step 1: Seleziona e scarica il tuo modulo
+        <div id="areaDownload" class="bg-zinc-950/70 p-3 rounded-xl border border-zinc-800 space-y-2.5">
+            <div class="flex items-center gap-1.5 text-zinc-300 text-[9px] font-bold uppercase">
+                <i class="fa-solid fa-download text-[#00ff66]"></i> Scarica il tuo modulo (Facoltativo)
             </div>
             <div class="space-y-2">
                 <select id="selettoreModulo" class="w-full bg-zinc-900 border border-zinc-700 text-white text-xs rounded-lg p-2 outline-none font-medium">
@@ -70,12 +70,12 @@
                     <option value="uomo">Liberatoria Visita Pre-Match - UOMO</option>
                     <option value="donna">Liberatoria Visita Pre-Match - DONNA</option>
                 </select>
-                <button type="button" onclick="scaricaModuloSelezionato()" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-black text-[10px] uppercase py-2 rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 shadow">
-                    <i class="fa-solid fa-file-pdf"></i> Scarica Modulo Selezionato
+                <button type="button" onclick="scaricaModuloSelezionato()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-black text-[10px] uppercase py-2 rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 shadow border border-zinc-700">
+                    <i class="fa-solid fa-file-pdf text-amber-400"></i> Scarica Modulo Selezionato
                 </button>
             </div>
-            <div id="avvisoDownload" class="text-[9px] text-amber-400/90 text-center font-semibold italic">
-                ⚠️ Devi scaricare il modulo per sbloccare l'invio dei dati.
+            <div id="avvisoDownload" class="text-[9px] text-zinc-400 text-center font-medium italic">
+                ℹ️ Puoi scaricare il modulo in qualsiasi momento.
             </div>
         </div>
 
@@ -117,7 +117,7 @@
                 </div>
             </div>
 
-            <!-- CERTIFICATO MEDICO (NON PIÙ OBBLIGATORIO FISSO) -->
+            <!-- CERTIFICATO MEDICO -->
             <div class="bg-amber-500/10 border border-amber-500/40 p-2 rounded-xl space-y-1">
                 <label class="block text-[9px] font-black text-amber-400 uppercase leading-tight">
                     <i class="fa-solid fa-circle-exclamation text-amber-400 mr-1"></i> Certificato Medico + Test Ematici (PDF)
@@ -126,7 +126,7 @@
                 <div id="infoCertificato" class="text-[9px] text-zinc-400 font-medium italic">Nessun file selezionato</div>
             </div>
 
-            <!-- LIBERATORIA FIRMATA (NON PIÙ OBBLIGATORIA FISSA) -->
+            <!-- LIBERATORIA FIRMATA -->
             <div class="bg-amber-500/10 border border-amber-500/40 p-2 rounded-xl space-y-1">
                 <label class="block text-[9px] font-black text-amber-400 uppercase leading-tight">
                     <i class="fa-solid fa-circle-exclamation text-amber-400 mr-1"></i> Liberatoria Firmata (PDF)
@@ -153,7 +153,7 @@
                 </div>
             </div>
 
-            <!-- FOTO UFFICIALE (NON PIÙ OBBLIGATORIA FISSA) -->
+            <!-- FOTO UFFICIALE -->
             <div>
                 <label class="block text-[8px] font-bold text-zinc-300 uppercase mb-0.5">Foto Ufficiale in Alta Definizione (Sfondo bianco, mezzo busto)</label>
                 <input type="file" id="fotoFile" accept="image/*" onchange="mostraFileInfo('fotoFile', 'infoFoto')" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-[10px] rounded-lg p-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-[#00ff66] file:text-black cursor-pointer">
@@ -173,7 +173,7 @@
 
             <div class="space-y-1 pt-1">
                 <button type="submit" id="btnInvia" disabled class="w-full bg-zinc-700 text-zinc-400 font-black text-xs uppercase py-2.5 rounded-xl transition cursor-not-allowed shadow-none">
-                    🔒 Scarica il modulo per sbloccare l'invio
+                    🔒 Spunta le caselle obbligatorie per procedere
                 </button>
                 <p id="avvisoAttesa" class="text-[9px] text-zinc-400 text-center font-medium italic hidden">
                     ⏳ Invio in corso al Cloud Firebase... Non chiudere la pagina.
@@ -203,7 +203,6 @@
         const storage = getStorage(app);
 
         let modalitaMusica = 'testo';
-        let scaricatoModulo = false;
 
         window.mostraFileInfo = function(inputId, infoId) {
             const input = document.getElementById(inputId);
@@ -241,8 +240,6 @@
             link.click();
             document.body.removeChild(link);
 
-            scaricatoModulo = true;
-            aggiornaStatoPulsante();
             const avviso = document.getElementById('avvisoDownload');
             avviso.innerHTML = `✅ Modulo "${nomeModulo}" scaricato.`;
             avviso.className = "text-[9px] text-[#00ff66] text-center font-bold";
@@ -253,7 +250,7 @@
             const consensoPrivacy = document.getElementById('consensoPrivacy').checked;
             const consensoMedia = document.getElementById('consensoMedia').checked;
 
-            if (scaricatoModulo && consensoPrivacy && consensoMedia) {
+            if (consensoPrivacy && consensoMedia) {
                 btn.disabled = false;
                 btn.className = "w-full bg-[#00ff66] hover:bg-[#00cc52] text-black font-black text-xs uppercase py-2.5 rounded-xl transition cursor-pointer shadow-[0_0_12px_rgba(0,255,102,0.3)]";
                 btn.innerText = "Invia Dati al CintheC";
@@ -261,7 +258,7 @@
             } else {
                 btn.disabled = true;
                 btn.className = "w-full bg-zinc-700 text-zinc-400 font-black text-xs uppercase py-2.5 rounded-xl transition cursor-not-allowed shadow-none";
-                btn.innerText = !scaricatoModulo ? "🔒 Scarica il modulo per sbloccare l'invio" : "🔒 Spunta le caselle obbligatorie per procedere";
+                btn.innerText = "🔒 Spunta le caselle obbligatorie per procedere";
                 document.getElementById('avvisoAttesa').classList.add('hidden');
             }
         };
