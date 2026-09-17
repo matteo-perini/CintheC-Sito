@@ -117,21 +117,21 @@
                 </div>
             </div>
 
-            <!-- CERTIFICATO MEDICO -->
+            <!-- CERTIFICATO MEDICO (NON PIÙ OBBLIGATORIO FISSO) -->
             <div class="bg-amber-500/10 border border-amber-500/40 p-2 rounded-xl space-y-1">
                 <label class="block text-[9px] font-black text-amber-400 uppercase leading-tight">
-                    <i class="fa-solid fa-circle-exclamation text-amber-400 mr-1"></i> Certificato Medico + Test Ematici (PDF) *
+                    <i class="fa-solid fa-circle-exclamation text-amber-400 mr-1"></i> Certificato Medico + Test Ematici (PDF)
                 </label>
-                <input type="file" id="certificatoPdf" accept=".pdf,application/pdf" multiple required onchange="mostraFileInfo('certificatoPdf', 'infoCertificato')" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-[10px] rounded-lg p-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-amber-500 file:text-black cursor-pointer">
+                <input type="file" id="certificatoPdf" accept=".pdf,application/pdf" multiple onchange="mostraFileInfo('certificatoPdf', 'infoCertificato')" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-[10px] rounded-lg p-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-amber-500 file:text-black cursor-pointer">
                 <div id="infoCertificato" class="text-[9px] text-zinc-400 font-medium italic">Nessun file selezionato</div>
             </div>
 
-            <!-- LIBERATORIA FIRMATA -->
+            <!-- LIBERATORIA FIRMATA (NON PIÙ OBBLIGATORIA FISSA) -->
             <div class="bg-amber-500/10 border border-amber-500/40 p-2 rounded-xl space-y-1">
                 <label class="block text-[9px] font-black text-amber-400 uppercase leading-tight">
-                    <i class="fa-solid fa-circle-exclamation text-amber-400 mr-1"></i> Liberatoria Firmata (PDF) *
+                    <i class="fa-solid fa-circle-exclamation text-amber-400 mr-1"></i> Liberatoria Firmata (PDF)
                 </label>
-                <input type="file" id="liberatoriaFirmata" accept=".pdf,application/pdf" multiple required onchange="mostraFileInfo('liberatoriaFirmata', 'infoLiberatoria')" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-[10px] rounded-lg p-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-amber-500 file:text-black cursor-pointer">
+                <input type="file" id="liberatoriaFirmata" accept=".pdf,application/pdf" multiple onchange="mostraFileInfo('liberatoriaFirmata', 'infoLiberatoria')" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-[10px] rounded-lg p-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-amber-500 file:text-black cursor-pointer">
                 <div id="infoLiberatoria" class="text-[9px] text-zinc-400 font-medium italic">Nessun file selezionato</div>
             </div>
 
@@ -153,10 +153,10 @@
                 </div>
             </div>
 
-            <!-- FOTO UFFICIALE -->
+            <!-- FOTO UFFICIALE (NON PIÙ OBBLIGATORIA FISSA) -->
             <div>
-                <label class="block text-[8px] font-bold text-zinc-300 uppercase mb-0.5">Foto Ufficiale in Alta Definizione (Sfondo bianco, mezzo busto) *</label>
-                <input type="file" id="fotoFile" accept="image/*" required onchange="mostraFileInfo('fotoFile', 'infoFoto')" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-[10px] rounded-lg p-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-[#00ff66] file:text-black cursor-pointer">
+                <label class="block text-[8px] font-bold text-zinc-300 uppercase mb-0.5">Foto Ufficiale in Alta Definizione (Sfondo bianco, mezzo busto)</label>
+                <input type="file" id="fotoFile" accept="image/*" onchange="mostraFileInfo('fotoFile', 'infoFoto')" class="w-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-[10px] rounded-lg p-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-[#00ff66] file:text-black cursor-pointer">
                 <div id="infoFoto" class="text-[9px] text-zinc-400 font-medium italic">Nessuna foto selezionata</div>
             </div>
 
@@ -205,7 +205,6 @@
         let modalitaMusica = 'testo';
         let scaricatoModulo = false;
 
-        // Funzione per mostrare il feedback visivo dei file selezionati
         window.mostraFileInfo = function(inputId, infoId) {
             const input = document.getElementById(inputId);
             const infoDiv = document.getElementById(infoId);
@@ -300,26 +299,30 @@
                 const cognomeAtleta = document.getElementById('cognome').value.trim();
                 const timestampFolder = `${Date.now()}_${nomeAtleta}_${cognomeAtleta}`;
 
-                // 1. Upload Certificati PDF
+                // 1. Upload Certificati PDF (se presenti)
                 let certificatiArray = [];
                 const certInput = document.getElementById('certificatoPdf');
-                for (let i = 0; i < certInput.files.length; i++) {
-                    let file = certInput.files[i];
-                    let fileRef = ref(storage, `_allFiles/${timestampFolder}/certificati/${file.name}`);
-                    await uploadBytes(fileRef, file);
-                    let downloadUrl = await getDownloadURL(fileRef);
-                    certificatiArray.push({ nomeFile: file.name, url: downloadUrl });
+                if (certInput.files && certInput.files.length > 0) {
+                    for (let i = 0; i < certInput.files.length; i++) {
+                        let file = certInput.files[i];
+                        let fileRef = ref(storage, `_allFiles/${timestampFolder}/certificati/${file.name}`);
+                        await uploadBytes(fileRef, file);
+                        let downloadUrl = await getDownloadURL(fileRef);
+                        certificatiArray.push({ nomeFile: file.name, url: downloadUrl });
+                    }
                 }
 
-                // 2. Upload Liberatorie PDF
+                // 2. Upload Liberatorie PDF (se presenti)
                 let liberatorieArray = [];
                 const libInput = document.getElementById('liberatoriaFirmata');
-                for (let i = 0; i < libInput.files.length; i++) {
-                    let file = libInput.files[i];
-                    let fileRef = ref(storage, `_allFiles/${timestampFolder}/liberatorie/${file.name}`);
-                    await uploadBytes(fileRef, file);
-                    let downloadUrl = await getDownloadURL(fileRef);
-                    liberatorieArray.push({ nomeFile: file.name, url: downloadUrl });
+                if (libInput.files && libInput.files.length > 0) {
+                    for (let i = 0; i < libInput.files.length; i++) {
+                        let file = libInput.files[i];
+                        let fileRef = ref(storage, `_allFiles/${timestampFolder}/liberatorie/${file.name}`);
+                        await uploadBytes(fileRef, file);
+                        let downloadUrl = await getDownloadURL(fileRef);
+                        liberatorieArray.push({ nomeFile: file.name, url: downloadUrl });
+                    }
                 }
 
                 // 3. Upload Audio (se caricato)
@@ -334,7 +337,7 @@
                     }
                 }
 
-                // 4. Upload Foto Ufficiale in HD
+                // 4. Upload Foto Ufficiale in HD (se presente)
                 let fotoUrl = "";
                 const fotoInput = document.getElementById('fotoFile');
                 if (fotoInput.files && fotoInput.files[0]) {
