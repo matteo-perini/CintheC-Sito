@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CintheC - Pannello Admin Centrale Eventi & Match</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #020503; color: #f4f4f5; }
+        .glass-panel {
+            background: rgba(5, 10, 7, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 255, 102, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        input:focus, select:focus { box-shadow: 0 0 12px rgba(0, 255, 102, 0.4); border-color: #00ff66 !important; }
+    </style>
+</head>
+<body class="antialiased min-h-screen p-4 sm:p-6 flex flex-col items-center">
+
+    <div class="max-w-4xl w-full space-y-6">
+        
+        <!-- HEADER ADMIN -->
+        <div class="glass-panel p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+                <!-- SELETTORE DISCIPLINA IN ALTO A SINISTRA -->
+                <div class="w-full sm:w-auto">
+                    <label class="block text-[9px] font-bold text-[#00ff66] uppercase mb-1"><i class="fa-solid fa-hand-fist"></i> Disciplina</label>
+                    <select id="selezionaDisciplinaAdmin" onchange="cambiaDisciplinaAdmin()" class="bg-zinc-900 border border-[#00ff66]/50 text-white text-xs rounded-lg p-2.5 outline-none font-black uppercase w-full sm:w-36">
+                        <option value="mma" selected>MMA</option>
+                        <option value="k1">K-1</option>
+                    </select>
+                </div>
+
+                <div>
+                    <span class="text-[#00ff66] font-black text-[9px] tracking-widest uppercase bg-[#00ff66]/10 px-2.5 py-1 rounded-full border border-[#00ff66]/30 inline-block mb-1">
+                        Control Room Ufficiale
+                    </span>
+                    <h1 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-white">Gestione Match & Eventi CintheC</h1>
+                </div>
+            </div>
+
+            <!-- SELETTORE EVENTO CENTRALE -->
+            <div class="w-full sm:w-auto">
+                <label class="block text-[9px] font-bold text-zinc-400 uppercase mb-1">Seleziona Evento Attivo</label>
+                <select id="selezionaEventoAdmin" onchange="cambiaEventoAdmin()" class="bg-zinc-900 border border-zinc-700 text-white text-xs rounded-lg p-2.5 outline-none font-bold uppercase w-full sm:w-48">
+                    <option value="match_cinthec8">CintheC 8</option>
+                    <option value="match_cinthec9">CintheC 9</option>
+                    <option value="match_cinthec10" selected>CintheC 10</option>
+                    <option value="match_cinthec11">CintheC 11</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- FORM INSERIMENTO / CREAZIONE MATCH -->
+        <div class="glass-panel p-6 rounded-2xl space-y-4">
+            <h2 class="text-sm font-black uppercase tracking-wider text-[#00ff66] flex items-center gap-2 border-b border-zinc-800 pb-3">
+                <i class="fa-solid fa-plus-circle"></i> Inserisci Nuovo Match (<span id="etichettaDisciplinaCorrente" class="text-white">MMA</span>) per <span id="titoloEventoCorrente" class="text-white underline">CintheC 10</span>
+            </h2>
+
+            <form id="formCreaMatch" onsubmit="creaNuovoMatch(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                
+                <!-- CATEGORIA E PESO TRAMITE MENU A TENDINA -->
+                <div class="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
+                    <div>
+                        <label class="block text-[9px] font-bold text-zinc-300 uppercase mb-1">Tipologia Match *</label>
+                        <select id="adminTipologia" required class="w-full bg-zinc-900 border border-zinc-700 text-white p-2.5 rounded-lg outline-none font-bold uppercase">
+                            <option value="PRO">PRO</option>
+                            <option value="SEMI-PRO">SEMI-PRO</option>
+                            <option value="LIGHT">LIGHT</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-bold text-zinc-300 uppercase mb-1">Classe di Peso (UFC Standards) *</label>
+                        <select id="adminClassePeso" required class="w-full bg-zinc-900 border border-zinc-700 text-white p-2.5 rounded-lg outline-none font-bold uppercase">
+                            <option value="Flyweight (Pesi Mosca)">Flyweight (-56.7 kg)</option>
+                            <option value="Bantamweight (Pesi Gallo)">Bantamweight (-61.2 kg)</option>
+                            <option value="Featherweight (Pesi Piuma)">Featherweight (-65.8 kg)</option>
+                            <option value="Lightweight (Pesi Leggeri)" selected>Lightweight (-70.3 kg)</option>
+                            <option value="Welterweight (Pesi Welter)">Welterweight (-77.1 kg)</option>
+                            <option value="Middleweight (Pesi Medi)">Middleweight (-83.9 kg)</option>
+                            <option value="Light Heavyweight (Pesi Massimi Leggeri)">Light Heavyweight (-93.0 kg)</option>
+                            <option value="Heavyweight (Pesi Massimi)">Heavyweight (Massimi)</option>
+                            <option value="Catchweight">Catchweight / Open Weight</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- FIGHTER SINISTRA -->
+                <div class="bg-zinc-900/60 border border-zinc-800 p-4 rounded-xl space-y-3">
+                    <h3 class="text-xs font-black text-zinc-300 uppercase">Fighter Sinistra</h3>
+                    <div>
+                        <label class="block text-[8px] font-bold text-zinc-400 uppercase mb-1">Nome Fighter *</label>
+                        <input type="text" id="adminAtleta1" required placeholder="Es. Mario Rossi" class="w-full bg-zinc-900 border border-zinc-700 text-white p-2 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[8px] font-bold text-zinc-400 uppercase mb-1">Team di appartenenza</label>
+                        <input type="text" id="adminTeam1" placeholder="Es. Leoni di San Marco" class="w-full bg-zinc-900 border border-zinc-700 text-white p-2 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[8px] font-bold text-zinc-400 uppercase mb-1">Foto Ufficiale (JPG, JPEG, PNG)</label>
+                        <input type="file" id="adminFoto1" accept=".jpg, .jpeg, .png, image/jpeg, image/png" onchange="mostraInfoCompressione('adminFoto1', 'infoFoto1')" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-400 text-[10px] rounded-lg p-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-zinc-700 file:text-white cursor-pointer">
+                        <div id="infoFoto1" class="text-[8px] text-zinc-400 mt-1 italic">Nessuna foto selezionata (verrà compresa automaticamente all'85%)</div>
+                    </div>
+                </div>
+
+                <!-- FIGHTER DESTRA -->
+                <div class="bg-zinc-900/60 border border-zinc-800 p-4 rounded-xl space-y-3">
+                    <h3 class="text-xs font-black text-zinc-300 uppercase">Fighter Destra</h3>
+                    <div>
+                        <label class="block text-[8px] font-bold text-zinc-400 uppercase mb-1">Nome Fighter *</label>
+                        <input type="text" id="adminAtleta2" required placeholder="Es. Luca Bianchi" class="w-full bg-zinc-900 border border-zinc-700 text-white p-2 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[8px] font-bold text-zinc-400 uppercase mb-1">Team di appartenenza</label>
+                        <input type="text" id="adminTeam2" placeholder="Es. CintheC Gym" class="w-full bg-zinc-900 border border-zinc-700 text-white p-2 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[8px] font-bold text-zinc-400 uppercase mb-1">Foto Ufficiale (JPG, JPEG, PNG)</label>
+                        <input type="file" id="adminFoto2" accept=".jpg, .jpeg, .png, image/jpeg, image/png" onchange="mostraInfoCompressione('adminFoto2', 'infoFoto2')" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-400 text-[10px] rounded-lg p-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-zinc-700 file:text-white cursor-pointer">
+                        <div id="infoFoto2" class="text-[8px] text-zinc-400 mt-1 italic">Nessuna foto selezionata (verrà compresa automaticamente all'85%)</div>
+                    </div>
+                </div>
+
+                <!-- OPZIONI DI STATO -->
+                <div class="sm:col-span-2 flex items-center justify-between pt-2 border-t border-zinc-800">
+                    <span class="text-[9px] text-zinc-400 italic">Il risultato potrà essere assegnato comodamente dall'elenco sottostante dopo l'incontro.</span>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="adminAbilitaPronostici" checked class="h-4 w-4 rounded border-zinc-800 bg-zinc-900 text-[#00ff66] accent-[#00ff66]">
+                        <span class="text-xs text-zinc-300 font-semibold">Abilita Pronostici Pubblici</span>
+                    </label>
+                </div>
+
+                <div class="sm:col-span-2 pt-2">
+                    <button type="submit" id="btnSalvaMatch" class="w-full bg-[#00ff66] hover:bg-[#00cc52] text-black font-black text-xs uppercase py-3 rounded-xl transition cursor-pointer shadow-[0_0_12px_rgba(0,255,102,0.3)]">
+                        Pubblica Match sulla Card Ufficiale
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- LISTA MATCH ESISTENTI NELL'EVENTO SELEZIONATO -->
+        <div class="glass-panel p-6 rounded-2xl space-y-4">
+            <h2 class="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2 border-b border-zinc-800 pb-3">
+                <i class="fa-solid fa-list-check text-[#00ff66]"></i> Match Registrati in <span id="titoloListaEvento" class="text-[#00ff66]">CintheC 10</span> (<span id="etichettaListaDisciplina" class="text-white">MMA</span>)
+            </h2>
+            <div id="containerElencoAdmin" class="space-y-3">
+                <p class="text-xs text-zinc-400 italic">Caricamento match dal cloud...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODALE ASSEGNAZIONE RISULTATO STRUTTURATA -->
+    <div id="modalRisultato" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-zinc-800 p-6 rounded-2xl max-w-md w-full space-y-4 text-xs">
+            <h3 class="text-sm font-black uppercase text-[#00ff66] border-b border-zinc-800 pb-2">Assegna Verdetto Ufficiale</h3>
+            <input type="hidden" id="modalMatchId">
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-[9px] font-bold text-zinc-400 uppercase mb-1">Vincitore del Match *</label>
+                    <select id="modalVincitore" class="w-full bg-zinc-900 border border-zinc-700 text-white p-2.5 rounded-lg outline-none font-bold uppercase">
+                        <!-- Popolato dinamicamente -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[9px] font-bold text-zinc-400 uppercase mb-1">Metodo di Vittoria *</label>
+                    <select id="modalMetodo" class="w-full bg-zinc-900 border border-zinc-700 text-white p-2.5 rounded-lg outline-none font-bold uppercase">
+                        <option value="Decisione Unanime">Decisione Unanime (UD)</option>
+                        <option value="Decisione a Maggioranza">Decisione a Maggioranza / Spaccata</option>
+                        <option value="KO">KO (Knockout)</option>
+                        <option value="TKO">TKO (Technical Knockout)</option>
+                        <option value="Finalizzazione (Sottomissione)">Finalizzazione / Sottomissione (SUB)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-3 border-t border-zinc-800">
+                <button type="button" onclick="salvaRisultatoModale()" class="flex-1 bg-[#00ff66] hover:bg-[#00cc52] text-black font-black py-2.5 rounded-xl uppercase transition cursor-pointer">Salva Verdetto</button>
+                <button type="button" onclick="chiudiModalRisultato()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-4 py-2.5 rounded-xl uppercase transition cursor-pointer">Annulla</button>
+                <button type="button" onclick="rimuoviRisultatoModale()" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 font-bold px-3 py-2.5 rounded-xl uppercase transition cursor-pointer" title="Rimuovi verdetto (riapri pronostici)">Rimuovi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT FIREBASE ADMIN & AUTOCOMPRESSORE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwH6n8SOMZcdjw06L0mU-1rZWeLcPkl8Y",
+            authDomain: "cinthec-eventi-storage.firebaseapp.com",
+            projectId: "cinthec-eventi-storage",
+            storageBucket: "cinthec-eventi-storage.firebasestorage.app",
+            messagingSenderId: "1083161100417",
+            appId: "1:1083161100417:web:75fa24c6f790a0c241cd80"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        let collezioneBase = "match_cinthec10";
+        let disciplinaCorrente = "mma";
+
+        window.cambiaEventoAdmin = function() {
+            const select = document.getElementById('selezionaEventoAdmin');
+            collezioneBase = select.value;
+            const nomeEventText = select.options[select.selectedIndex].text;
+            document.getElementById('titoloEventoCorrente').innerText = nomeEventText;
+            document.getElementById('titoloListaEvento').innerText = nomeEventText;
+            caricaMatchAdmin();
+        };
+
+        window.cambiaDisciplinaAdmin = function() {
+            const select = document.getElementById('selezionaDisciplinaAdmin');
+            disciplinaCorrente = select.value;
+            const labelDisc = select.options[select.selectedIndex].text;
+            document.getElementById('etichettaDisciplinaCorrente').innerText = labelDisc;
+            document.getElementById('etichettaListaDisciplina').innerText = labelDisc;
+            caricaMatchAdmin();
+        };
+
+        // Nome collezione dinamico (es: match_cinthec10_mma o match_cinthec10_k1)
+        function ottieniNomeCollezione() {
+            return `${collezioneBase}_${disciplinaCorrente}`;
+        }
+
+        window.mostraInfoCompressione = function(inputId, infoId) {
+            const input = document.getElementById(inputId);
+            const infoDiv = document.getElementById(infoId);
+            if (input.files && input.files[0]) {
+                const sizeKb = (input.files[0].size / 1024).toFixed(1);
+                infoDiv.innerHTML = `✅ Selezionato: <strong class="text-white">${input.files[0].name}</strong> (${sizeKb} KB) — verrà compresso all'85%.`;
+                infoDiv.className = "text-[8px] text-[#00ff66] font-bold mt-1";
+            }
+        };
+
+        async function comprimiImmagine(fileInput, qualita = 0.85) {
+            return new Promise((resolve, reject) => {
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    resolve(null);
+                    return;
+                }
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        const maxWidth = 900;
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob((blob) => {
+                            if (!blob) {
+                                reject(new Error("Errore nella compressione"));
+                                return;
+                            }
+                            const fileCompresso = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                                type: "image/jpeg",
+                                lastModified: Date.now()
+                            });
+                            resolve(fileCompresso);
+                        }, 'image/jpeg', qualita);
+                    };
+                    img.onerror = (error) => reject(error);
+                };
+                reader.onerror = (error) => reject(error);
+            });
+        }
+
+        window.creaNuovoMatch = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSalvaMatch');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Compressione foto e caricamento su Firebase...`;
+
+            try {
+                const tipologia = document.getElementById('adminTipologia').value;
+                const classePeso = document.getElementById('adminClassePeso').value;
+                const legaComposta = `${tipologia} • ${classePeso}`;
+
+                const atleta1 = document.getElementById('adminAtleta1').value.trim();
+                const atleta2 = document.getElementById('adminAtleta2').value.trim();
+                const timestampFolder = `${Date.now()}_${atleta1}_vs_${atleta2}`;
+
+                let foto1Url = "";
+                const inputFoto1 = document.getElementById('adminFoto1');
+                if (inputFoto1.files && inputFoto1.files[0]) {
+                    const fileCompresso1 = await comprimiImmagine(inputFoto1, 0.85);
+                    const fileRef1 = ref(storage, `eventi_foto/${timestampFolder}/fighter1.jpg`);
+                    await uploadBytes(fileRef1, fileCompresso1);
+                    foto1Url = await getDownloadURL(fileRef1);
+                }
+
+                let foto2Url = "";
+                const inputFoto2 = document.getElementById('adminFoto2');
+                if (inputFoto2.files && inputFoto2.files[0]) {
+                    const fileCompresso2 = await comprimiImmagine(inputFoto2, 0.85);
+                    const fileRef2 = ref(storage, `eventi_foto/${timestampFolder}/fighter2.jpg`);
+                    await uploadBytes(fileRef2, fileCompresso2);
+                    foto2Url = await getDownloadURL(fileRef2);
+                }
+
+                await addDoc(collection(db, ottieniNomeCollezione()), {
+                    lega: legaComposta,
+                    disciplina: disciplinaCorrente,
+                    atleta1: atleta1,
+                    team1: document.getElementById('adminTeam1').value.trim(),
+                    foto1Url: foto1Url,
+                    atleta2: atleta2,
+                    team2: document.getElementById('adminTeam2').value.trim(),
+                    foto2Url: foto2Url,
+                    risultato: "",
+                    abilitaPronostici: document.getElementById('adminAbilitaPronostici').checked,
+                    votiSinistra: 0,
+                    votiDestra: 0,
+                    dataCreazione: new Date().toISOString()
+                });
+
+                alert("Match creato con successo e foto compresse caricate!");
+                document.getElementById('formCreaMatch').reset();
+                document.getElementById('infoFoto1').innerText = "Nessuna foto selezionata";
+                document.getElementById('infoFoto2').innerText = "Nessuna foto selezionata";
+                caricaMatchAdmin();
+
+            } catch (err) {
+                console.error("Errore salvataggio match:", err);
+                alert("Errore durante il salvataggio su Firebase.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Pubblica Match sulla Card Ufficiale";
+            }
+        };
+
+        window.caricaMatchAdmin = async function() {
+            const container = document.getElementById('containerElencoAdmin');
+            container.innerHTML = '<p class="text-xs text-zinc-400 italic">Caricamento...</p>';
+
+            try {
+                const querySnapshot = await getDocs(collection(db, ottieniNomeCollezione()));
+                if (querySnapshot.empty) {
+                    container.innerHTML = `<p class="text-xs text-zinc-400 italic">Nessun match registrato per questa categoria (${disciplinaCorrente.toUpperCase()}).</p>`;
+                    return;
+                }
+
+                container.innerHTML = '';
+                querySnapshot.forEach((d) => {
+                    const m = d.data();
+                    const id = d.id;
+                    const card = document.createElement('div');
+                    card.className = "bg-zinc-950 p-4 rounded-xl border border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs";
+                    card.innerHTML = `
+                        <div class="space-y-1">
+                            <span class="text-[9px] font-black uppercase bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded">${m.lega || 'MATCH'}</span>
+                            <div class="font-bold text-white text-sm">
+                                <span class="text-zinc-200">${m.atleta1}</span> vs <span class="text-zinc-200">${m.atleta2}</span>
+                            </div>
+                            <div class="text-[10px] text-zinc-400">
+                                Risultato: <strong class="text-[#00ff66]">${m.risultato || 'In attesa di verdetto'}</strong> | Pronostici: ${m.abilitaPronostici ? '🟢 Aperti' : '🔴 Chiusi'}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            <button onclick="apriModalRisultato('${id}', '${m.atleta1.replace(/'/g, "\\'")}', '${m.atleta2.replace(/'/g, "\\'")}')" class="bg-amber-500 hover:bg-amber-600 text-black px-3 py-1.5 rounded-lg font-black uppercase text-[10px] cursor-pointer">
+                                Modifica Risultato
+                            </button>
+                            <button onclick="eliminaMatchAdmin('${id}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg font-black uppercase text-[10px] cursor-pointer">
+                                Elimina
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error("Errore lettura admin:", err);
+                container.innerHTML = '<p class="text-xs text-red-500">Errore di connessione a Firebase.</p>';
+            }
+        };
+
+        window.apriModalRisultato = async function(id, atleta1, atleta2) {
+            document.getElementById('modalMatchId').value = id;
+            const selectVincitore = document.getElementById('modalVincitore');
+            selectVincitore.innerHTML = `
+                <option value="Vince ${atleta1}">Vince ${atleta1} (Sinistra)</option>
+                <option value="Vince ${atleta2}">Vince ${atleta2} (Destra)</option>
+                <option value="Pareggio">Pareggio (Draw)</option>
+                <option value="No Contest">No Contest</option>
+            `;
+            document.getElementById('modalRisultato').classList.remove('hidden');
+            document.getElementById('modalRisultato').classList.add('flex');
+        };
+
+        window.chiudiModalRisultato = function() {
+            document.getElementById('modalRisultato').classList.remove('flex');
+            document.getElementById('modalRisultato').classList.add('hidden');
+        };
+
+        window.salvaRisultatoModale = async function() {
+            const id = document.getElementById('modalMatchId').value;
+            const vincitore = document.getElementById('modalVincitore').value;
+            const metodo = document.getElementById('modalMetodo').value;
+            const verdettoFinale = `${vincitore} (${metodo})`;
+
+            try {
+                const docRef = doc(db, ottieniNomeCollezione(), id);
+                await updateDoc(docRef, { risultato: verdettoFinale });
+                chiudiModalRisultato();
+                alert("Verdetto salvato e pubblicato con successo!");
+                caricaMatchAdmin();
+            } catch (err) {
+                console.error("Errore salvataggio verdetto:", err);
+                alert("Errore durante l'aggiornamento del risultato.");
+            }
+        };
+
+        window.rimuoviRisultatoModale = async function() {
+            const id = document.getElementById('modalMatchId').value;
+            if (!confirm("Vuoi rimuovere il verdetto e riaprire i pronostici per questo match?")) return;
+
+            try {
+                const docRef = doc(db, ottieniNomeCollezione(), id);
+                await updateDoc(docRef, { risultato: "" });
+                chiudiModalRisultato();
+                alert("Verdetto rimosso. Il match è tornato in attesa.");
+                caricaMatchAdmin();
+            } catch (err) {
+                console.error("Errore rimozione:", err);
+                alert("Errore durante l'operazione.");
+            }
+        };
+
+        window.eliminaMatchAdmin = async function(id) {
+            if (!confirm("Vuoi davvero eliminare questo match?")) return;
+            try {
+                await deleteDoc(doc(db, ottieniNomeCollezione(), id));
+                caricaMatchAdmin();
+            } catch (err) {
+                console.error("Errore eliminazione:", err);
+                alert("Impossibile eliminare il match.");
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            caricaMatchAdmin();
+        });
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CintheC 10 - Fight Card & Risultati</title>
+    <title>CintheC 10 - Fight Card, Pronostici & Risultati</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -18,7 +18,6 @@
             box-shadow: 0 0 15px rgba(0, 255, 102, 0.6) !important;
         }
 
-        /* Sfondo con tagli diagonali spezzati */
         .site-bg-cuts {
             background-color: #fafafc;
             background-image: 
@@ -39,16 +38,16 @@
             background-position: center;
         }
 
-        /* EFFETTO 3D PULITO PER LE TABELLE E I RIQUADRI */
         .card-3d {
-            border: 1px solid rgba(0, 0, 0, 0.12);
-            border-top: 2px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 15px 30px -8px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 2px solid rgba(0, 0, 0, 0.15);
+            border-top: 3px solid rgba(0, 255, 102, 0.6);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
         .card-3d:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.18), 0 6px 8px -2px rgba(0, 0, 0, 0.06);
+            transform: translateY(-3px);
+            border-color: rgba(0, 255, 102, 0.5);
+            box-shadow: 0 20px 30px -8px rgba(0, 0, 0, 0.15);
         }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -58,24 +57,27 @@
             background-color: rgba(0, 255, 102, 0.9);
             color: black;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            z-index: 10;
+            z-index: 20;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            opacity: 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            opacity: 0.9;
         }
         .carousel-container:hover .carousel-btn { opacity: 1; }
         .carousel-btn:hover { background-color: rgb(0, 221, 85); transform: translateY(-50%) scale(1.1); }
-        .btn-prev { left: -15px; }
-        .btn-next { right: -15px; }
+        
+        /* Frecce spostate completamente all'esterno per liberare spazio alle card */
+        .btn-prev { left: -22px; }
+        .btn-next { right: -22px; }
+
         .scroll-mask-r { mask-image: linear-gradient(to right, black 90%, transparent 100%); }
         
         @keyframes pulseAttention {
@@ -87,7 +89,6 @@
             display: inline-block;
         }
 
-        /* MENU DI NAVIGAZIONE PC & MOBILE */
         .pc-nav-link {
             color: #ffffff !important;
             font-size: 11px;
@@ -103,9 +104,7 @@
             position: relative;
             z-index: 60;
         }
-        .pc-nav-link:hover {
-            color: #00ff66 !important;
-        }
+        .pc-nav-link:hover { color: #00ff66 !important; }
 
         .nav-dropdown-btn {
             background-color: rgba(18, 18, 20, 0.85);
@@ -120,22 +119,13 @@
             align-items: center;
             gap: 6px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            border-radius: 0px !important;
             cursor: pointer;
             position: relative;
             z-index: 60;
         }
-        .nav-dropdown-btn:hover {
-            border-color: #00ff66;
-            background-color: rgba(0, 0, 0, 0.95);
-            color: #00ff66;
-        }
+        .nav-dropdown-btn:hover { border-color: #00ff66; background-color: rgba(0, 0, 0, 0.95); color: #00ff66; }
 
-        .dropdown { 
-            position: relative; 
-            display: inline-block; 
-            z-index: 100; 
-        }
+        .dropdown { position: relative; display: inline-block; z-index: 100; }
         
         .dropdown-content {
             display: none;
@@ -144,23 +134,14 @@
             min-width: 180px;
             box-shadow: 0px 12px 28px 0px rgba(0,0,0,0.8);
             z-index: 150;
-            border-radius: 0px !important;
             overflow: hidden;
             border: 1px solid rgba(0, 255, 102, 0.3);
             top: 100%;
             left: 0;
             padding-top: 8px;
-            margin-top: 0px;
         }
-        
-        .dropdown-inner {
-            background-color: #121214;
-            border-top: 1px solid rgba(0, 255, 102, 0.2);
-        }
-
-        .dropdown-content.show, .mobile-dropdown-content.show {
-            display: block !important;
-        }
+        .dropdown-inner { background-color: #121214; border-top: 1px solid rgba(0, 255, 102, 0.2); }
+        .dropdown-content.show, .mobile-dropdown-content.show { display: block !important; }
 
         .mobile-dropdown-btn {
             background-color: rgba(20, 20, 24, 0.9);
@@ -174,19 +155,10 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            border-radius: 0px !important;
             cursor: pointer;
             position: relative;
             z-index: 60;
-            text-decoration: none !important;
         }
-        .mobile-dropdown-btn:hover {
-            border-color: #ffffff;
-            background-color: rgba(0, 0, 0, 1);
-            color: #00ff66;
-        }
-
         .mobile-dropdown-content {
             display: none;
             position: absolute;
@@ -194,65 +166,24 @@
             min-width: 160px;
             box-shadow: 0px 12px 28px 0px rgba(0,0,0,0.8);
             z-index: 150;
-            border-radius: 0px !important;
-            overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.15);
             top: 100%;
             left: 0;
             padding-top: 8px;
-            margin-top: 0px;
         }
-
         .dropdown-content a, .mobile-dropdown-content a {
-            color: white;
-            padding: 10px 16px;
-            text-decoration: none;
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 0px !important;
+            color: white; padding: 10px 16px; text-decoration: none; display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .dropdown-content a:last-child, .mobile-dropdown-content a:last-child { border-bottom: none; }
         .dropdown-content a:hover { background-color: #00ff66; color: black; }
         .mobile-dropdown-content a:hover { background-color: #ffffff; color: black; }
 
-        /* STANDARD DEFINITIVO LOGHI E MISURE */
-        .logo-left-cinthec {
-            width: 250px !important;
-            height: 100px !important;
-            max-height: 100px !important;
-            object-fit: contain !important;
-            margin-left: -18px !important;
-            position: relative;
-            z-index: 60;
-        }
+        .logo-left-cinthec { width: 250px !important; height: 100px !important; max-height: 100px !important; object-fit: contain !important; margin-left: -18px !important; position: relative; z-index: 60; }
         @media (min-width: 768px) {
-            .logo-left-cinthec {
-                width: 290px !important;
-                height: 115px !important;
-                max-height: 115px !important;
-                margin-left: -45px !important;
-            }
+            .logo-left-cinthec { width: 290px !important; height: 115px !important; max-height: 115px !important; margin-left: -45px !important; }
         }
-
-        .logo-right-leoni {
-            width: 42px !important;      
-            height: 42px !important;
-            max-height: 42px !important;
-            object-fit: contain !important;
-            margin-right: 10px !important;
-            position: relative;
-            z-index: 60;
-        }
+        .logo-right-leoni { width: 42px !important; height: 42px !important; max-height: 42px !important; object-fit: contain !important; margin-right: 10px !important; position: relative; z-index: 60; }
         @media (min-width: 768px) {
-            .logo-right-leoni {
-                width: 48px !important;   
-                height: 48px !important;
-                max-height: 48px !important;
-                margin-right: 14px !important;
-            }
+            .logo-right-leoni { width: 48px !important; height: 48px !important; max-height: 48px !important; margin-right: 14px !important; }
         }
     </style>
 </head>
@@ -260,15 +191,12 @@
 
     <header class="border-b border-zinc-800 bar-lightning-bg sticky top-0 z-50 shadow-md h-20 sm:h-24 flex items-center overflow-visible">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 w-full grid grid-cols-3 items-center relative z-50">
-            
-            <!-- LOGO CINTHEC SINISTRA -->
             <div class="flex items-center justify-start">
                 <a href="index.html" class="flex items-center">
                     <img src="Immagini/Logo.jpeg" alt="CintheC Logo" class="logo-left-cinthec" onerror="this.onerror=null; this.src='Immagini/Logo.png';">
                 </a>
             </div>
 
-            <!-- MENU CENTRALE (PERFETTAMENTE CENTRATO) -->
             <div class="flex items-center justify-center gap-2 w-full relative z-50">
                 <div class="dropdown md:hidden">
                     <button type="button" class="mobile-dropdown-btn w-full justify-center" onclick="toggleDropdown(event, 'mobileEventsDropdown')">
@@ -292,7 +220,7 @@
                             <a href="index.html">Home</a>
                             <a href="classifiche.html">Ranking</a>
                             <a href="galleria.html">Shop</a>
-                            <a href="https://www.ticketsms.it/event/Cinthec-X-Chioggia-Palazetto-Dello-Sport-Veronese-10-10-2026?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAb21jcAUC5T5wZG9mAmV4dG4DYWVtAjExAHNydGMGYXBwX2lkDzU2NzA2NzM0MzM1MjQyNwABp7tBxqmypRhUvTBjA3iKb6PuNio1hk_S8rSnuuf0Oigut1wB8v15KGw5mGfu_aem_Lty047RJmJ8w4Jzr92cN9w" target="_blank">Ticket</a>
+                            <a href="https://www.ticketsms.it/event/Cinthec-X-Chioggia-Palazetto-Dello-Sport-Veronese-10-10-2026?utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank">Ticket</a>
                             <a href="iscrizione.html">Matchmaking</a>
                             <a href="tornei.html">SmootheC</a>
                         </div>
@@ -315,15 +243,14 @@
                     </div>
                     <a href="classifiche.html" class="pc-nav-link"><i class="fa-solid fa-ranking-star text-[#00ff66]"></i> Ranking</a>
                     <a href="galleria.html" class="pc-nav-link"><i class="fa-solid fa-store text-[#00ff66]"></i> Shop</a>
-                    <a href="https://www.ticketsms.it/event/Cinthec-X-Chioggia-Palazetto-Dello-Sport-Veronese-10-10-2026?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAb21jcAUC5T5wZG9mAmV4dG4DYWVtAjExAHNydGMGYXBwX2lkDzU2NzA2NzM0MzM1MjQyNwABp7tBxqmypRhUvTBjA3iKb6PuNio1hk_S8rSnuuf0Oigut1wB8v15KGw5mGfu_aem_Lty047RJmJ8w4Jzr92cN9w" target="_blank" class="pc-nav-link"><i class="fa-solid fa-ticket text-[#00ff66]"></i> Ticket</a>
+                    <a href="https://www.ticketsms.it/event/Cinthec-X-Chioggia-Palazetto-Dello-Sport-Veronese-10-10-2026?utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank" class="pc-nav-link"><i class="fa-solid fa-ticket text-[#00ff66]"></i> Ticket</a>
                     <a href="iscrizione.html" class="pc-nav-link"><i class="fa-solid fa-user-pen text-[#00ff66]"></i> Matchmaking</a>
                     <a href="tornei.html" class="pc-nav-link"><i class="fa-solid fa-users-gear text-[#00ff66]"></i> SmootheC</a>
                 </div>
             </div>
 
-            <!-- LOGO LEONI DI SAN MARCO DESTRA -->
             <div class="flex items-center justify-end">
-                <a href="https://www.instagram.com/leoni_di_san_marco?igsi=b2ZpOGgxcjY3NWYz" target="_blank" class="flex items-center">
+                <a href="https://www.instagram.com/leoni_di_san_marco" target="_blank" class="flex items-center">
                     <img src="Immagini/secondo-logo.png" alt="Leoni di San Marco" class="logo-right-leoni" onerror="this.style.display='none';">
                 </a>
             </div>
@@ -332,15 +259,15 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-10 w-full flex-grow">
         
+        <!-- SEZIONE TESTATA EVENTO -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 items-start">
-            
             <div class="lg:col-span-2 bg-white rounded-none card-3d overflow-hidden group">
                 <div class="w-full overflow-hidden m-0 p-0 leading-none bg-zinc-950 h-[380px] sm:h-[480px] flex items-center justify-center">
                     <img src="Immagini/locandina-cinthec10.jpg" alt="CintheC 10 Locandina" class="w-full h-full object-contain p-2 group-hover:scale-101 transition duration-500 rounded-none" onerror="this.style.display='none';">
                 </div>
                 <div class="p-6 bg-white">
                     <div class="text-[11px] font-black uppercase text-zinc-500 tracking-wider mb-1">CintheC Fight Night - Season 10</div>
-                    <h1 class="text-2xl sm:text-3xl font-black uppercase tracking-tight text-zinc-900">Main Event & Futuri Risultati</h1>
+                    <h1 class="text-2xl sm:text-3xl font-black uppercase tracking-tight text-zinc-900">Main Event & Pronostici Live</h1>
                 </div>
             </div>
 
@@ -348,15 +275,15 @@
                 <h3 class="text-sm font-black uppercase tracking-wider text-[#00ff66] mb-4 border-b border-zinc-800 pb-2">Info Evento</h3>
                 <div class="space-y-4 text-xs">
                     <div class="border-b border-zinc-800 pb-3">
-                        <span class="text-[9px] font-bold text-zinc-400 uppercase bg-zinc-800 px-2 py-0.5 rounded-none">Status</span>
-                        <h4 class="font-bold text-white mt-1">In Programmazione</h4>
+                        <span class="text-[9px] font-bold text-zinc-400 uppercase bg-zinc-800 px-2 py-0.5">Status</span>
+                        <h4 class="font-bold text-white mt-1">Pronostici Aperti • 10 Ottobre 2026</h4>
                     </div>
                     <div class="border-b border-zinc-800 pb-3">
-                        <span class="text-[9px] font-bold text-zinc-400 uppercase bg-zinc-800 px-2 py-0.5 rounded-none">Media</span>
-                        <h4 class="font-bold text-white mt-1">Archivio incontri e verdetti da rivedere</h4>
+                        <span class="text-[9px] font-bold text-zinc-400 uppercase bg-zinc-800 px-2 py-0.5">Gamification</span>
+                        <h4 class="font-bold text-white mt-1">Vota il tuo fighter e vedi le percentuali in tempo reale</h4>
                     </div>
                     <div>
-                        <span class="text-[9px] font-bold text-zinc-400 uppercase bg-zinc-800 px-2 py-0.5 rounded-none">Shop & Foto</span>
+                        <span class="text-[9px] font-bold text-zinc-400 uppercase bg-zinc-800 px-2 py-0.5">Shop & Foto</span>
                         <div class="mt-1">
                             <a href="galleria.html" class="inline-block font-bold text-white hover:underline animate-pulse-attention">
                                 Vai alla galleria e acquista le foto del tuo match! <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
@@ -367,23 +294,43 @@
             </div>
         </div>
 
-        <div class="mb-8 border-b border-zinc-300 pb-3">
-            <h2 class="text-2xl sm:text-3xl font-black uppercase tracking-tight text-zinc-900">Fight Card & Risultati - CintheC 10</h2>
-            <p class="text-xs sm:text-sm text-zinc-600">I verdetti ufficiali di tutti gli incontri della serata.</p>
+        <!-- SEZIONE 1: MMA -->
+        <div class="mb-12">
+            <div class="mb-4 border-b border-zinc-300 pb-2 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase bg-zinc-900 text-[#00ff66] px-2.5 py-1 rounded">Official Card</span>
+                    <h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-zinc-900 mt-1">Match in programma & Votazione Live • MMA</h2>
+                </div>
+            </div>
+            
+            <div class="carousel-container relative w-full px-2">
+                <div class="carousel-btn btn-prev" onclick="scrollCarousel('carouselMMA10', -300)"><i class="fa-solid fa-chevron-left"></i></div>
+                <div class="carousel-btn btn-next" onclick="scrollCarousel('carouselMMA10', 300)"><i class="fa-solid fa-chevron-right"></i></div>
+                
+                <div id="carouselMMA10" class="flex overflow-x-auto hide-scrollbar scroll-mask-r gap-5 pb-4 -mb-4 scroll-smooth">
+                    <div class="flex-none w-[300px] sm:w-[320px] bg-white rounded-2xl p-4 card-3d flex items-center justify-center min-h-[220px]">
+                        <p class="text-xs font-bold text-zinc-400"><i class="fa-solid fa-spinner fa-spin mr-2 text-[#00ff66]"></i> Caricamento card MMA...</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
+        <!-- SEZIONE 2: K-1 -->
         <div class="mb-10">
-            <h3 class="text-base font-black uppercase tracking-tight text-zinc-900 mb-3 flex items-center gap-2">
-                <span class="w-2 h-2 bg-red-600 rounded-full"></span> General Card & Official
-            </h3>
+            <div class="mb-4 border-b border-zinc-300 pb-2 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase bg-zinc-900 text-[#00ff66] px-2.5 py-1 rounded">Official Card</span>
+                    <h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-zinc-900 mt-1">Match in programma & Votazione Live • K-1</h2>
+                </div>
+            </div>
             
-            <div class="carousel-container relative w-full">
-                <div class="carousel-btn btn-prev" onclick="scrollCarousel('carouselMain10', -300)"><i class="fa-solid fa-chevron-left"></i></div>
-                <div class="carousel-btn btn-next" onclick="scrollCarousel('carouselMain10', 300)"><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="carousel-container relative w-full px-2">
+                <div class="carousel-btn btn-prev" onclick="scrollCarousel('carouselK110', -300)"><i class="fa-solid fa-chevron-left"></i></div>
+                <div class="carousel-btn btn-next" onclick="scrollCarousel('carouselK110', 300)"><i class="fa-solid fa-chevron-right"></i></div>
                 
-                <div id="carouselMain10" class="flex overflow-x-auto hide-scrollbar scroll-mask-r gap-5 pb-4 -mb-4 scroll-smooth">
-                    <div class="flex-none w-[270px] sm:w-[290px] bg-white rounded-2xl p-4 card-3d flex items-center justify-center min-h-[190px]">
-                        <p class="text-xs font-bold text-zinc-400"><i class="fa-solid fa-spinner fa-spin mr-2 text-[#00ff66]"></i> Caricamento match attivi...</p>
+                <div id="carouselK110" class="flex overflow-x-auto hide-scrollbar scroll-mask-r gap-5 pb-4 -mb-4 scroll-smooth">
+                    <div class="flex-none w-[300px] sm:w-[320px] bg-white rounded-2xl p-4 card-3d flex items-center justify-center min-h-[220px]">
+                        <p class="text-xs font-bold text-zinc-400"><i class="fa-solid fa-spinner fa-spin mr-2 text-[#00ff66]"></i> Caricamento card K-1...</p>
                     </div>
                 </div>
             </div>
@@ -393,22 +340,17 @@
 
     <footer class="relative z-10 py-1.5 text-zinc-400 text-xs border-t border-zinc-800 bar-lightning-bg mt-28">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-3 gap-2 text-left items-center">
-            
             <div class="flex flex-col items-start gap-0.5">
                 <h4 class="text-white font-black text-[10px] uppercase tracking-wider mb-0.5">Seguici</h4>
                 <div class="flex flex-col gap-0.5 text-[11px]">
-                    <a href="https://www.instagram.com/cinthec_mma?igsi=dDl1bjBxcDB2bHl2" target="_blank" class="inline-flex items-center gap-1 text-zinc-300 hover:text-[#00ff66] font-semibold transition">
+                    <a href="https://www.instagram.com/cinthec_mma" target="_blank" class="inline-flex items-center gap-1 text-zinc-300 hover:text-[#00ff66] font-semibold transition">
                         <i class="fa-brands fa-instagram text-pink-500 text-xs"></i> CintheC MMA
                     </a>
-                    <a href="https://www.instagram.com/leoni_di_san_marco?igsi=b2ZpOGgxcjY3NWYz" target="_blank" class="inline-flex items-center gap-1 text-zinc-300 hover:text-[#00ff66] font-semibold transition">
+                    <a href="https://www.instagram.com/leoni_di_san_marco" target="_blank" class="inline-flex items-center gap-1 text-zinc-300 hover:text-[#00ff66] font-semibold transition">
                         <i class="fa-brands fa-instagram text-pink-500 text-xs"></i> Leoni di San Marco
-                    </a>
-                    <a href="https://www.instagram.com/labirinthknockout?igsi=dGlwMGZ1amwyMjJr" target="_blank" class="inline-flex items-center gap-1 text-zinc-300 hover:text-[#00ff66] font-semibold transition">
-                        <i class="fa-brands fa-instagram text-pink-500 text-xs"></i> Labirinth Knockout
                     </a>
                 </div>
             </div>
-
             <div class="flex flex-col items-center text-center">
                 <a href="iscrizione.html" class="text-white font-black text-[10px] mb-0.5 uppercase tracking-wider hover:text-[#00ff66] transition block">Matchmaking</a>
                 <ul class="flex flex-col gap-0.5 text-[11px] text-zinc-300">
@@ -416,117 +358,241 @@
                     <li><a href="note-legali.html" class="hover:text-[#00ff66] transition font-medium">Note Legali</a></li>
                 </ul>
             </div>
-
             <div class="flex flex-col items-end text-right">
                 <h4 class="text-white font-black text-[10px] mb-0.5 uppercase tracking-wider">Pagamenti Sicuri</h4>
                 <div class="flex gap-1.5 text-base sm:text-lg text-zinc-300 justify-end flex-wrap">
-                    <i class="fa-brands fa-cc-visa" title="Visa"></i>
-                    <i class="fa-brands fa-cc-mastercard" title="Mastercard"></i>
-                    <i class="fa-brands fa-cc-amex" title="American Express"></i>
-                    <i class="fa-brands fa-cc-paypal" title="PayPal"></i>
-                    <i class="fa-brands fa-apple-pay" title="Apple Pay"></i>
-                    <i class="fa-brands fa-google-pay" title="Google Pay"></i>
+                    <i class="fa-brands fa-cc-visa"></i>
+                    <i class="fa-brands fa-cc-mastercard"></i>
+                    <i class="fa-brands fa-cc-paypal"></i>
                 </div>
             </div>
-
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-1 border-t border-zinc-900/80 text-center text-[9px] text-zinc-500 mt-1.5">
             <p>© 2026 CintheC & Leoni di San Marco. Tutti i diritti riservati.</p>
         </div>
     </footer>
 
-    <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJSPDKtM2XMbiGQD1BQmmbafPPqpFTBxMpVwJyPHHFsEuwiBQAplQR6HwPGE5F1TNs/exec';
+    <!-- SCRIPT FIREBASE & GESTIONE SEPARATA MMA / K-1 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        window.addEventListener('DOMContentLoaded', () => {
-            caricaMatchPubblici();
-        });
+        const firebaseConfigEventi = {
+            apiKey: "AIzaSyAwH6n8SOMZcdjw06L0mU-1rZWeLcPkl8Y",
+            authDomain: "cinthec-eventi-storage.firebaseapp.com",
+            projectId: "cinthec-eventi-storage",
+            storageBucket: "cinthec-eventi-storage.firebasestorage.app",
+            messagingSenderId: "1083161100417",
+            appId: "1:1083161100417:web:75fa24c6f790a0c241cd80"
+        };
 
-        async function caricaMatchPubblici() {
-            const container = document.getElementById('carouselMain10');
+        const appEventi = initializeApp(firebaseConfigEventi);
+        const dbEventi = getFirestore(appEventi);
+
+        async function caricaMatchPerDisciplina(nomeCollezione, containerId) {
+            const container = document.getElementById(containerId);
             try {
-                const response = await fetch(SCRIPT_URL + '?action=getMatchSalvati');
-                const data = await response.json();
+                const querySnapshot = await getDocs(collection(dbEventi, nomeCollezione));
                 
-                if (data.matchSalvati && data.matchSalvati.length > 0) {
-                    const matchAttivi = data.matchSalvati.filter(m => m.stato === "ON");
-
-                    if (matchAttivi.length > 0) {
-                        container.innerHTML = '';
-                        matchAttivi.forEach((m, index) => {
-                            const card = document.createElement('div');
-                            card.className = "flex-none w-[270px] sm:w-[290px] bg-white rounded-2xl p-4 card-3d flex flex-col justify-between";
-                            card.innerHTML = `
-                                <div>
-                                    <div class="flex justify-between items-center mb-3">
-                                        <span class="text-[9px] font-black uppercase bg-black text-white px-2 py-0.5 rounded">Match #${index + 1}</span>
-                                        <span class="text-[10px] font-bold text-white bg-black px-2 py-0.5 rounded">Ufficiale</span>
-                                    </div>
-                                    <div class="grid grid-cols-5 items-center mb-3 text-center">
-                                        <div class="col-span-2 px-0.5 flex flex-col items-center">
-                                            <div class="w-11 h-11 mx-auto bg-zinc-200 rounded-full overflow-hidden mb-1.5 border-2 border-red-500 flex items-center justify-center shadow-sm shrink-0">
-                                                <i class="fa-solid fa-user text-red-500 text-xs"></i>
-                                            </div>
-                                            <h4 class="font-black text-[10px] text-red-600 uppercase w-full leading-tight break-words" title="${m.atleta1}">${m.atleta1}</h4>
-                                            <p class="text-[8px] text-zinc-500 font-bold w-full truncate mt-0.5">${m.team1 || '-'}</p>
-                                        </div>
-
-                                        <div class="col-span-1 flex flex-col items-center justify-center">
-                                            <span class="text-[10px] font-black italic text-zinc-400 uppercase">VS</span>
-                                            <span class="text-[7px] font-black uppercase text-zinc-900 mt-0.5 bg-zinc-100 px-1 py-0.5 rounded border border-zinc-300 whitespace-nowrap">${m.lega || 'SEMI-PRO'}</span>
-                                        </div>
-
-                                        <div class="col-span-2 px-0.5 flex flex-col items-center">
-                                            <div class="w-11 h-11 mx-auto bg-zinc-200 rounded-full overflow-hidden mb-1.5 border-2 border-blue-600 flex items-center justify-center shadow-sm shrink-0">
-                                                <i class="fa-solid fa-user text-blue-600 text-xs"></i>
-                                            </div>
-                                            <h4 class="font-black text-[10px] text-blue-600 uppercase w-full leading-tight break-words" title="${m.atleta2}">${m.atleta2}</h4>
-                                            <p class="text-[8px] text-zinc-500 font-bold w-full truncate mt-0.5">${m.team2 || '-'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="w-full bg-zinc-100 text-zinc-700 text-center py-2 rounded-xl font-bold text-[11px] border border-zinc-200">
-                                    Risultato: <span class="text-zinc-900 font-black">In attesa di verdetto</span>
-                                </div>
-                            `;
-                            container.appendChild(card);
-                        });
-                        return;
-                    }
+                if (querySnapshot.empty) {
+                    container.innerHTML = `<div class="flex-none w-full bg-white rounded-2xl p-6 text-center card-3d"><p class="text-xs font-bold text-zinc-500">Nessun match in programma al momento.</p></div>`;
+                    return;
                 }
 
-                container.innerHTML = `<div class="flex-none w-full bg-white rounded-2xl p-6 text-center card-3d"><p class="text-xs font-bold text-zinc-500">Nessun match attivo al momento. Attivalo dalla dashboard Admin!</p></div>`;
+                container.innerHTML = '';
+                querySnapshot.forEach((d) => {
+                    const m = d.id;
+                    const data = d.data();
+                    
+                    let tipoMatch = "PRO";
+                    let classePesoInglese = data.lega || "Lightweight";
+                    
+                    if (data.lega && data.lega.includes("•")) {
+                        const parti = data.lega.split("•");
+                        tipoMatch = parti[0].trim();
+                        let pesoCompleto = parti[1].trim();
+                        classePesoInglese = pesoCompleto.split("(")[0].trim();
+                    }
+
+                    const htmlFoto1 = data.foto1Url 
+                        ? `<img src="${data.foto1Url}" alt="${data.atleta1}" class="w-full h-full object-cover">`
+                        : `<i class="fa-solid fa-user text-zinc-600 text-sm"></i>`;
+
+                    const htmlFoto2 = data.foto2Url 
+                        ? `<img src="${data.foto2Url}" alt="${data.atleta2}" class="w-full h-full object-cover">`
+                        : `<i class="fa-solid fa-user text-zinc-600 text-sm"></i>`;
+
+                    let htmlSezioneVoto = '';
+                    if (data.risultato && data.risultato.trim() !== '') {
+                        htmlSezioneVoto = `
+                            <div class="text-center bg-zinc-900 text-white text-[10px] font-black uppercase py-2 rounded-xl border border-zinc-700 shadow">
+                                🏆 Verdetto: <span class="text-[#00ff66]">${data.risultato}</span>
+                            </div>
+                        `;
+                    } else {
+                        const vS = data.votiSinistra || 0;
+                        const vD = data.votiDestra || 0;
+                        const tot = vS + vD;
+                        const pS = tot > 0 ? Math.round((vS / tot) * 100) : 50;
+                        const pD = tot > 0 ? Math.round((vD / tot) * 100) : 50;
+
+                        const giaVotato = localStorage.getItem(`votato_${m}`);
+                        htmlSezioneVoto = `
+                            <div id="votoContenitore_${m}">
+                                ${giaVotato ? `
+                                    <div class="text-center bg-zinc-100 text-zinc-700 text-[9px] font-bold py-1.5 rounded-lg border border-zinc-300">
+                                        ✅ Hai già votato questo match
+                                    </div>
+                                ` : `
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button onclick="votaMatch('${nomeCollezione}', '${m}', 'sinistra')" class="bg-zinc-100 hover:bg-[#00ff66] hover:text-black text-zinc-800 font-black text-[10px] uppercase py-2 rounded-lg border border-zinc-300 transition cursor-pointer">
+                                            Vota ${data.atleta1}
+                                        </button>
+                                        <button onclick="votaMatch('${nomeCollezione}', '${m}', 'destra')" class="bg-zinc-100 hover:bg-[#00ff66] hover:text-black text-zinc-800 font-black text-[10px] uppercase py-2 rounded-lg border border-zinc-300 transition cursor-pointer">
+                                            Vota ${data.atleta2}
+                                        </button>
+                                    </div>
+                                `}
+                            </div>
+
+                            <!-- BARRA PERCENTUALI SPECULARE CENTRALE (VERDE CINTECH) -->
+                            <div class="space-y-1 mt-2">
+                                <div class="flex justify-between text-[9px] font-bold text-zinc-700">
+                                    <span id="percSinistra_${m}">${data.atleta1} (<span id="numPS_${m}">${pS}</span>%)</span>
+                                    <span id="percDestra_${m}">${data.atleta2} (<span id="numPD_${m}">${pD}</span>%)</span>
+                                </div>
+                                <div class="w-full h-3 bg-zinc-200 rounded-full overflow-hidden relative flex border border-zinc-300">
+                                    <div class="w-1/2 h-full flex justify-end bg-zinc-100">
+                                        <div id="barraSinistra_${m}" class="bg-[#00ff66] h-full transition-all duration-500" style="width: ${pS}%"></div>
+                                    </div>
+                                    <div class="absolute left-1/2 top-0 bottom-0 w-[2px] bg-zinc-900 z-10 -translate-x-1/2"></div>
+                                    <div class="w-1/2 h-full flex justify-start bg-zinc-100">
+                                        <div id="barraDestra_${m}" class="bg-[#00ff66] h-full transition-all duration-500" style="width: ${pD}%"></div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-[8px] text-zinc-400 px-0.5">
+                                    <span>Voti totali: <span id="totVoti_${m}">${tot}</span></span>
+                                    <span class="font-bold uppercase tracking-wider text-zinc-500">Pronostici Live</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = "flex-none w-[300px] sm:w-[320px] bg-white rounded-2xl p-4 card-3d flex flex-col justify-between space-y-3";
+                    card.innerHTML = `
+                        <div>
+                            <div class="text-center mb-4">
+                                <h4 class="text-[11px] font-black uppercase tracking-wider text-zinc-900 m-0 leading-tight">${tipoMatch}</h4>
+                                <span class="text-[9px] font-bold text-zinc-600 uppercase tracking-wide block mt-0.5">${classePesoInglese}</span>
+                            </div>
+
+                            <div class="grid grid-cols-5 items-center mb-3 text-center">
+                                <div class="col-span-2 px-0.5 flex flex-col items-center">
+                                    <div class="w-12 h-12 mx-auto bg-zinc-100 rounded-full overflow-hidden mb-1.5 border-2 border-zinc-300 flex items-center justify-center shadow-sm shrink-0">
+                                        ${htmlFoto1}
+                                    </div>
+                                    <h4 class="font-black text-[11px] text-zinc-900 uppercase w-full leading-tight truncate">${data.atleta1}</h4>
+                                    <p class="text-[8px] text-zinc-500 font-bold w-full truncate mt-0.5">${data.team1 || '-'}</p>
+                                </div>
+
+                                <div class="col-span-1 flex flex-col items-center justify-center">
+                                    <span class="text-xs font-black italic text-zinc-400 uppercase">VS</span>
+                                </div>
+
+                                <div class="col-span-2 px-0.5 flex flex-col items-center">
+                                    <div class="w-12 h-12 mx-auto bg-zinc-100 rounded-full overflow-hidden mb-1.5 border-2 border-zinc-300 flex items-center justify-center shadow-sm shrink-0">
+                                        ${htmlFoto2}
+                                    </div>
+                                    <h4 class="font-black text-[11px] text-zinc-900 uppercase w-full leading-tight truncate">${data.atleta2}</h4>
+                                    <p class="text-[8px] text-zinc-500 font-bold w-full truncate mt-0.5">${data.team2 || '-'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-zinc-200">
+                            ${htmlSezioneVoto}
+                        </div>
+                    `;
+                    container.appendChild(card);
+
+                    if (!data.risultato || data.risultato.trim() === '') {
+                        onSnapshot(doc(dbEventi, nomeCollezione, m), (docSnap) => {
+                            if (docSnap.exists()) {
+                                const dat = docSnap.data();
+                                const vS = dat.votiSinistra || 0;
+                                const vD = dat.votiDestra || 0;
+                                const tot = vS + vD;
+                                const pS = tot > 0 ? Math.round((vS / tot) * 100) : 50;
+                                const pD = tot > 0 ? Math.round((vD / tot) * 100) : 50;
+
+                                const numPS = document.getElementById(`numPS_${m}`);
+                                const numPD = document.getElementById(`numPD_${m}`);
+                                const barSinistra = document.getElementById(`barraSinistra_${m}`);
+                                const barDestra = document.getElementById(`barraDestra_${m}`);
+                                const elTot = document.getElementById(`totVoti_${m}`);
+
+                                if (numPS) numPS.innerText = pS;
+                                if (numPD) numPD.innerText = pD;
+                                if (barSinistra) barSinistra.style.width = `${pS}%`;
+                                if (barDestra) barDestra.style.width = `${pD}%`;
+                                if (elTot) elTot.innerText = tot;
+                            }
+                        });
+                    }
+                });
 
             } catch (error) {
-                console.error("Errore caricamento match pubblici:", error);
-                container.innerHTML = `<div class="flex-none w-full bg-white rounded-2xl p-6 text-center card-3d"><p class="text-xs font-bold text-red-500">Impossibile caricare i match dal Cloud.</p></div>`;
+                console.error("Errore caricamento match:", error);
+                container.innerHTML = `<div class="flex-none w-full bg-white rounded-2xl p-6 text-center card-3d"><p class="text-xs font-bold text-red-500">Errore di connessione a Firebase.</p></div>`;
             }
         }
 
-        function scrollCarousel(carouselId, distance) {
-            const container = document.getElementById(carouselId);
-            container.scrollBy({ left: distance, behavior: 'smooth' });
-        }
+        window.votaMatch = async function(collezione, matchId, lato) {
+            if (localStorage.getItem(`votato_${matchId}`)) {
+                alert("Hai già espresso il tuo pronostico per questo match!");
+                return;
+            }
 
-        function toggleDropdown(event, dropdownId) {
+            const matchRef = doc(dbEventi, collezione, matchId);
+            try {
+                await updateDoc(matchRef, {
+                    votiSinistra: lato === 'sinistra' ? increment(1) : increment(0),
+                    votiDestra: lato === 'destra' ? increment(1) : increment(0)
+                });
+
+                localStorage.setItem(`votato_${matchId}`, true);
+                document.getElementById(`votoContenitore_${matchId}`).innerHTML = `
+                    <div class="text-center bg-zinc-100 text-zinc-700 text-[9px] font-bold py-1.5 rounded-lg border border-zinc-300">
+                        ✅ Pronostico registrato con successo!
+                    </div>
+                `;
+            } catch (err) {
+                console.error("Errore voto:", err);
+                alert("Impossibile registrare il voto. Riprova.");
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            caricaMatchPerDisciplina("match_cinthec10_mma", "carouselMMA10");
+            caricaMatchPerDisciplina("match_cinthec10_k1", "carouselK110");
+        });
+
+        window.toggleDropdown = function(event, dropdownId) {
             event.stopPropagation();
             const targetDropdown = document.getElementById(dropdownId);
             const isOpen = targetDropdown.classList.contains('show');
+            document.querySelectorAll('.dropdown-content, .mobile-dropdown-content').forEach(el => el.classList.remove('show'));
+            if (!isOpen) targetDropdown.classList.add('show');
+        };
 
-            document.querySelectorAll('.dropdown-content, .mobile-dropdown-content').forEach(el => {
-                el.classList.remove('show');
-            });
-
-            if (!isOpen) {
-                targetDropdown.classList.add('show');
-            }
-        }
-
-        window.addEventListener('click', function() {
-            document.querySelectorAll('.dropdown-content, .mobile-dropdown-content').forEach(el => {
-                el.classList.remove('show');
-            });
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-content, .mobile-dropdown-content').forEach(el => el.classList.remove('show'));
         });
+
+        window.scrollCarousel = function(carouselId, distance) {
+            document.getElementById(carouselId).scrollBy({ left: distance, behavior: 'smooth' });
+        }
     </script>
 </body>
 </html>
