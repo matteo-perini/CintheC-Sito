@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CintheC Photo Store - Official Galleries</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase App (Core) e Firebase Storage SDK (Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cinthec: '#00ff66',
+            'cinthec-dark': '#00cc52',
+            k1color: '#ff3333',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      background-color: #121212;
+      background-image: linear-gradient(rgba(10, 10, 10, 0.82), rgba(18, 18, 18, 0.88)), url('fulmini-bg.jpeg');
+      background-repeat: repeat;
+      background-size: cover;
+      color: #e5e5e5;
+      margin: 0;
+    }
+    header, main, footer {
+      position: relative;
+      z-index: 10;
+    }
+    .album-modal {
+      z-index: 50;
+    }
+    #lightbox {
+      z-index: 100;
+    }
+    .watermark {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .watermark span {
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: rgba(0, 255, 102, 0.4);
+      text-transform: uppercase;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+      transform: rotate(-20deg);
+      white-space: nowrap;
+    }
+    * {
+      border-radius: 0px !important;
+    }
+    .match-card {
+      background-color: #1a1a1a;
+      border: 1px solid #333333;
+      box-shadow: 0 6px 0px 0px #111111, 0 10px 20px rgba(0,0,0,0.8);
+      transition: all 0.15s ease;
+    }
+    .match-card:hover {
+      border-color: #00ff66;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0px 0px #00cc52, 0 12px 25px rgba(0,255,102,0.15);
+    }
+    .btn-mma { 
+      background-color: #00ff66; 
+      color: #000000; 
+      font-weight: 800;
+      border-bottom: 3px solid #00993d;
+      box-shadow: 0 4px 10px rgba(0,255,102,0.3);
+      transition: all 0.1s ease;
+    }
+    .btn-mma:active { transform: translateY(2px); border-bottom-width: 1px; }
+    
+    .btn-k1 { 
+      background-color: #ff3333; 
+      color: #ffffff; 
+      font-weight: 800;
+      border-bottom: 3px solid #b30000;
+      box-shadow: 0 4px 10px rgba(255,51,51,0.3);
+      transition: all 0.1s ease;
+    }
+    .btn-k1:active { transform: translateY(2px); border-bottom-width: 1px; }
+
+    .section-divider {
+      background: linear-gradient(90deg, transparent, #00ff66, transparent);
+      height: 2px;
+    }
+    .photo-stack {
+      position: relative;
+      width: 72px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+    .photo-stack img {
+      position: absolute;
+      width: 52px;
+      height: 38px;
+      object-fit: cover;
+      border: 2px solid #00ff66;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+    }
+    .photo-stack img:nth-child(1) { transform: rotate(-10deg) translateX(-6px); z-index: 1; }
+    .photo-stack img:nth-child(2) { transform: rotate(8deg) translateX(6px); z-index: 2; }
+  </style>
+</head>
+<body class="font-sans min-h-screen antialiased">
+
+  <!-- ===== HEADER CON LOGO.PNG & TASTO HOME ===== -->
+  <header class="sticky top-0 z-40 bg-[#161616] border-b border-neutral-800 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <img src="logo.png" alt="CintheC Logo" class="h-12 sm:h-14 w-auto object-contain" />
+        <div class="text-left">
+          <p class="text-cinthec font-extrabold text-lg leading-none tracking-wide">CintheC</p>
+          <p class="text-neutral-400 text-xs leading-none mt-1">Photo Store</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <div class="text-center sm:text-right">
+          <h1 class="text-white font-extrabold text-base sm:text-xl leading-tight">
+            CintheC X — Official Match Galleries
+          </h1>
+          <p class="text-neutral-400 text-xs mt-0.5">MMA &amp; K-1 Fight Photography</p>
+        </div>
+        
+        <!-- Tasto di ritorno alla Home (index.html) -->
+        <a href="index.html" class="inline-flex items-center gap-1.5 bg-neutral-900 hover:bg-neutral-800 text-white border border-neutral-700 hover:border-cinthec font-bold text-xs px-3.5 py-2.5 transition shadow-md shrink-0">
+          <svg class="w-4 h-4 text-cinthec" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          Home
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== BARRA DI RICERCA MATCH ===== -->
+  <section class="max-w-6xl mx-auto px-4 pt-6">
+    <div class="bg-[#1a1a1a] border-2 border-neutral-700 p-4 shadow-2xl flex flex-col sm:flex-row items-center gap-3">
+      <div class="flex items-center gap-2 text-cinthec font-bold text-sm shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <span>Cerca Match:</span>
+      </div>
+      <input type="text" id="searchInput" onkeyup="filterMatches()" placeholder="Digita il nome del lottatore o la disciplina (es. Marina, Biffi, K-1)..." 
+             class="w-full bg-neutral-900 border border-neutral-700 text-white px-4 py-2.5 text-sm focus:outline-none focus:border-cinthec placeholder-neutral-400" />
+    </div>
+  </section>
+
+  <!-- ===== INFO BOX ===== -->
+  <section class="max-w-6xl mx-auto px-4 pt-6">
+    <div class="bg-[#1a1a1a] border-2 border-cinthec p-6 shadow-2xl space-y-3">
+      <div class="flex items-center gap-2.5 text-cinthec">
+        <svg class="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <h2 class="font-extrabold text-lg text-white">Come acquistare le tue foto</h2>
+      </div>
+      <p class="text-neutral-200 text-sm leading-relaxed font-semibold">
+        1. Clicca su <strong class="text-cinthec">"Visualizza Album"</strong> sul match di tuo interesse per aprire la galleria in primo piano.<br>
+        2. Clicca su una qualsiasi foto per vederla ingrandita a schermo intero, oppure premi <strong class="text-white">"Acquista questa foto"</strong> per inviare la richiesta direttamente su WhatsApp con il link della foto.<br>
+        3. Metodi di pagamento accettati: <strong class="text-cinthec">PayPal</strong> e <strong class="text-cinthec">Bonifico Bancario</strong>.<br>
+        <span class="text-amber-300 text-xs font-bold block mt-2">⚠️ Attenzione: le fotografie rimarranno online per l'acquisto per un massimo di 30 giorni dall'evento, dopodiché verranno rimosse definitivamente.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== CONTENUTO PRINCIPALE (GRIGLIA MATCH) ===== -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+
+    <!-- SEZIONE MMA -->
+    <section class="match-category-section">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="inline-block w-2 h-7 bg-cinthec"></span>
+        <h2 class="text-white font-extrabold text-2xl tracking-tight">MMA</h2>
+        <span class="text-neutral-400 text-sm font-light">Fight Galleries</span>
+      </div>
+      <div class="section-divider w-full mb-6"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="mma-grid">
+
+        <!-- MATCH 1 -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Marina Chiarello Enza Mallone MMA Match 1">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/5485439/pexels-photo-5485439.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/5424766/pexels-photo-5424766.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[11px] font-bold uppercase border border-cinthec/30">Match 1 • MMA</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Marina Chiarello</strong><br><span class="text-neutral-400 text-xs">Codice mma</span></div>
+                <div><strong class="text-white font-semibold">Enza Mallone</strong><br><span class="text-neutral-400 text-xs">Fight gym</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-mma-1'); loadFirebasePhotos('match-mma-1', 'grid-mma-1')" class="btn-mma text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+        <!-- MATCH 2 -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Andrea Biffi Christian Zechetto MMA Match 2">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/5424766/pexels-photo-5424766.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/5485621/pexels-photo-5485621.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[11px] font-bold uppercase border border-cinthec/30">Match 2 • MMA</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Andrea Biffi</strong><br><span class="text-neutral-400 text-xs">King Fit Bergamo</span></div>
+                <div><strong class="text-white font-semibold">Christian Zechetto</strong><br><span class="text-neutral-400 text-xs">Sport Accademy</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-mma-2'); loadFirebasePhotos('match-mma-2', 'grid-mma-2')" class="btn-mma text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+        <!-- MATCH 3 -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Maikol Garcia Luca Finotti MMA Match 3">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/5485621/pexels-photo-5485621.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/5616794/pexels-photo-5616794.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[11px] font-bold uppercase border border-cinthec/30">Match 3 • MMA</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Maikol Garcia</strong><br><span class="text-neutral-400 text-xs">King Fit Bergamo</span></div>
+                <div><strong class="text-white font-semibold">Luca Finotti</strong><br><span class="text-neutral-400 text-xs">Orizon</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-mma-3'); loadFirebasePhotos('match-mma-3', 'grid-mma-3')" class="btn-mma text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+        <!-- MATCH 4 -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Lorenzo Vasini Andrea Piccinini MMA Match 4">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/5616794/pexels-photo-5616794.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/5485616/pexels-photo-5485616.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[11px] font-bold uppercase border border-cinthec/30">Match 4 • MMA</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Lorenzo Vasini</strong><br><span class="text-neutral-400 text-xs">Urban Arena</span></div>
+                <div><strong class="text-white font-semibold">Andrea Piccinini</strong><br><span class="text-neutral-400 text-xs">Fight Club Ravenna</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-mma-4'); loadFirebasePhotos('match-mma-4', 'grid-mma-4')" class="btn-mma text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+        <!-- MATCH 5 (MAIN CARD) -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Mattia Marostegan Riccardo Muso Main Card Match 5 MMA">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/5485616/pexels-photo-5485616.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/5485533/pexels-photo-5485533.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-cinthec text-black text-[11px] font-extrabold uppercase">Main Card • Match 5</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Mattia Marostegan</strong><br><span class="text-neutral-400 text-xs">Team Kodiac</span></div>
+                <div><strong class="text-white font-semibold">Riccardo Muso</strong><br><span class="text-neutral-400 text-xs">La Superba</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-mma-5'); loadFirebasePhotos('match-mma-5', 'grid-mma-5')" class="btn-mma text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+        <!-- MATCH 6 -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Maura Brunello Giulia Garofalo Main Card Match 6 MMA">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/5485533/pexels-photo-5485533.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/28560744/pexels-photo-28560744.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-cinthec text-black text-[11px] font-extrabold uppercase">Main Card • Match 6</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Maura Brunello</strong><br><span class="text-neutral-400 text-xs">Kodiac Team</span></div>
+                <div><strong class="text-white font-semibold">Giulia Garofalo</strong><br><span class="text-neutral-400 text-xs">Fight Club Ravenna</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-mma-6'); loadFirebasePhotos('match-mma-6', 'grid-mma-6')" class="btn-mma text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+        <!-- MATCH 7 -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Giovanni Annania Roman Bondariuk Main Card Match 7 MMA">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/27833607/pexels-photo-27833607.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/28560751/pexels-photo-28560751.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-cinthec text-black text-[11px] font-extrabold uppercase">Main Card • Match 7</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Giovanni Annania</strong><br><span class="text-neutral-400 text-xs">Urban Arena</span></div>
+                <div><strong class="text-white font-semibold">Roman Bondariuk</strong><br><span class="text-neutral-400 text-xs">Pride Gym</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-mma-7'); loadFirebasePhotos('match-mma-7', 'grid-mma-7')" class="btn-mma text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SEZIONE K-1 -->
+    <section class="pt-6 match-category-section">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="inline-block w-2 h-7 bg-k1color"></span>
+        <h2 class="text-white font-extrabold text-2xl tracking-tight">K-1</h2>
+        <span class="text-neutral-400 text-sm font-light">Fight Galleries</span>
+      </div>
+      <div class="section-divider w-full mb-6" style="background: linear-gradient(90deg, transparent, #ff3333, transparent);"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="k1-grid">
+
+        <!-- MATCH 8 -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Andrea Pignatelli Monaco Gosue K1 Match 8">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/5525492/pexels-photo-5525492.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/5485445/pexels-photo-5485445.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-k1color/10 text-k1color text-[11px] font-bold uppercase border border-k1color/30">Match 8 • K-1</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Andrea Pignatelli</strong><br><span class="text-neutral-400 text-xs">King Fit Bergamo</span></div>
+                <div><strong class="text-white font-semibold">Monaco Gosue</strong><br><span class="text-neutral-400 text-xs">Europ Center One</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-k1-1'); loadFirebasePhotos('match-k1-1', 'grid-k1-1')" class="btn-k1 text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+        <!-- MATCH 9 -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Matteo Perini Gurami Berikishvili K1 Match 9">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/5424764/pexels-photo-5424764.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/5424666/pexels-photo-5424666.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-k1color/10 text-k1color text-[11px] font-bold uppercase border border-k1color/30">Match 9 • K-1</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Matteo Perini</strong><br><span class="text-neutral-400 text-xs">Leoni Di San Marco</span></div>
+                <div><strong class="text-white font-semibold">Gurami Berikishvili</strong><br><span class="text-neutral-400 text-xs">Esma Verona</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-k1-2'); loadFirebasePhotos('match-k1-2', 'grid-k1-2')" class="btn-k1 text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+        <!-- MATCH 10 -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Massimo Chiril Riccardo Di Pasquale K1 Match 10">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/17892107/pexels-photo-17892107.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/35342445/pexels-photo-35342445.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-k1color/10 text-k1color text-[11px] font-bold uppercase border border-k1color/30">Match 10 • K-1</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Massimo Chiril</strong><br><span class="text-neutral-400 text-xs">Fight Accademy</span></div>
+                <div><strong class="text-white font-semibold">Riccardo Di Pasquale</strong><br><span class="text-neutral-400 text-xs">Codice mma</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-k1-3'); loadFirebasePhotos('match-k1-3', 'grid-k1-3')" class="btn-k1 text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+        <!-- MATCH 11 (MAIN EVENT) -->
+        <div class="match-card p-4 flex items-center justify-between gap-3" data-search="Nicola Varagnolo Andrea Zorzi K1 Main Event Match 11">
+          <div class="flex items-center gap-3.5">
+            <div class="photo-stack hidden sm:block">
+              <img src="https://images.pexels.com/photos/11045336/pexels-photo-11045336.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+              <img src="https://images.pexels.com/photos/38120873/pexels-photo-38120873.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
+            </div>
+            <div>
+              <span class="px-2 py-0.5 bg-k1color text-white text-[11px] font-extrabold uppercase">K-1 Main Event • Match 11</span>
+              <div class="grid grid-cols-2 gap-x-4 mt-1.5 text-sm">
+                <div><strong class="text-white font-semibold">Nicola Varagnolo</strong><br><span class="text-neutral-400 text-xs">Leoni Di San Marco</span></div>
+                <div><strong class="text-white font-semibold">Andrea Zorzi</strong><br><span class="text-neutral-400 text-xs">Team Iron Dojo</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="openModal('album-k1-4'); loadFirebasePhotos('match-k1-4', 'grid-k1-4')" class="btn-k1 text-xs px-4 py-3 shrink-0">
+            Visualizza Album
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================= -->
+  <!-- POP-UP ALBUM (DINAMICI DA FIREBASE) -->
+  <!-- ======================================================= -->
+
+  <!-- POP-UP MATCH 1 -->
+  <div id="album-mma-1" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-mma-1')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[11px] font-bold uppercase border border-cinthec/30">MMA</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Marina Chiarello vs Enza Mallone</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20MMA%3A%20Marina%20Chiarello%20vs%20Enza%20Mallone%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-cinthec text-black hover:bg-emerald-400 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <!-- Griglia dinamica Firebase -->
+      <div id="grid-mma-1" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MATCH 2 -->
+  <div id="album-mma-2" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-mma-2')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[11px] font-bold uppercase border border-cinthec/30">MMA</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Andrea Biffi vs Christian Zechetto</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20MMA%3A%20Andrea%20Biffi%20vs%20Christian%20Zechetto%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-cinthec text-black hover:bg-emerald-400 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <div id="grid-mma-2" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MATCH 3 -->
+  <div id="album-mma-3" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-mma-3')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[11px] font-bold uppercase border border-cinthec/30">MMA</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Maikol Garcia vs Luca Finotti</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20MMA%3A%20Maikol%20Garcia%20vs%20Luca%20Finotti%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-cinthec text-black hover:bg-emerald-400 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <div id="grid-mma-3" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MATCH 4 -->
+  <div id="album-mma-4" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-mma-4')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[11px] font-bold uppercase border border-cinthec/30">MMA</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Lorenzo Vasini vs Andrea Piccinini</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20MMA%3A%20Lorenzo%20Vasini%20vs%20Andrea%20Piccinini%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-cinthec text-black hover:bg-emerald-400 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <div id="grid-mma-4" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MATCH 5 -->
+  <div id="album-mma-5" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-mma-5')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-cinthec text-black text-[11px] font-extrabold uppercase">Main Card</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Mattia Marostegan vs Riccardo Muso</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20MMA%3A%20Mattia%20Marostegan%20vs%20Riccardo%20Muso%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-cinthec text-black hover:bg-emerald-400 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <div id="grid-mma-5" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MATCH 6 -->
+  <div id="album-mma-6" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-mma-6')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-cinthec text-black text-[11px] font-extrabold uppercase">Main Card</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Maura Brunello vs Giulia Garofalo</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20MMA%3A%20Maura%20Brunello%20vs%20Giulia%20Garofalo%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-cinthec text-black hover:bg-emerald-400 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <div id="grid-mma-6" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MATCH 7 -->
+  <div id="album-mma-7" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-mma-7')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-cinthec text-black text-[11px] font-extrabold uppercase">Main Card</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Giovanni Annania vs Roman Bondariuk</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20MMA%3A%20Giovanni%20Annania%20vs%20Roman%20Bondariuk%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-cinthec text-black hover:bg-emerald-400 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <div id="grid-mma-7" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MATCH 8 (K-1) -->
+  <div id="album-k1-1" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-k1-1')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-k1color/10 text-k1color text-[11px] font-bold uppercase border border-k1color/30">K-1</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Andrea Pignatelli vs Monaco Gosue</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20K-1%3A%20Andrea%20Pignatelli%20vs%20Monaco%20Gosue%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-k1color text-white hover:bg-red-700 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <div id="grid-k1-1" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MATCH 9 (K-1) -->
+  <div id="album-k1-2" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-k1-2')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-k1color/10 text-k1color text-[11px] font-bold uppercase border border-k1color/30">K-1</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Matteo Perini vs Gurami Berikishvili</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20K-1%3A%20Matteo%20Perini%20vs%20Gurami%20Berikishvili%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-k1color text-white hover:bg-red-700 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <div id="grid-k1-2" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MATCH 10 (K-1) -->
+  <div id="album-k1-3" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-k1-3')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-k1color/10 text-k1color text-[11px] font-bold uppercase border border-k1color/30">K-1</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Massimo Chiril vs Riccardo Di Pasquale</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20K-1%3A%20Massimo%20Chiril%20vs%20Riccardo%20Di%20Pasquale%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-k1color text-white hover:bg-red-700 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <div id="grid-k1-3" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- POP-UP MATCH 11 (K-1 Main Event) -->
+  <div id="album-k1-4" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-k1-4')" class="absolute top-4 right-4 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-4 pr-10">
+        <span class="px-2 py-0.5 bg-k1color text-white text-[11px] font-extrabold uppercase">K-1 Main Event</span>
+        <h3 class="text-white font-extrabold text-xl mt-1">Nicola Varagnolo vs Andrea Zorzi</h3>
+      </div>
+      <div class="mb-4 bg-neutral-900 p-3.5 border border-neutral-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-neutral-200 text-xs font-semibold">📸 Vuoi l'intero album di questo match in alta qualità?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20del%20match%20K-1%20Main%20Event%3A%20Nicola%20Varagnolo%20vs%20Andrea%20Zorzi%20-%20CintheC%20X" target="_blank" rel="noopener"
+           class="font-bold text-xs px-4 py-2.5 bg-k1color text-white hover:bg-red-700 shadow-sm shrink-0">
+          📁 Acquista Intero Album
+        </a>
+      </div>
+      <div id="grid-k1-4" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- ===== LIGHTBOX MODAL ===== -->
+  <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <button onclick="closeLightbox()" class="absolute top-5 right-5 text-white bg-neutral-900 hover:bg-neutral-800 p-3 transition-colors z-50 shadow-lg">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    <div class="max-w-4xl w-full flex flex-col items-center z-50">
+      <div class="relative max-h-[65vh] overflow-hidden border-2 border-white/20 bg-neutral-900 shadow-2xl flex items-center justify-center">
+        <img id="lightbox-img" src="" alt="Anteprima ingrandita" class="max-h-[60vh] object-contain w-full" />
+        <div class="watermark"><span class="text-xl">CintheC Logo</span></div>
+      </div>
+      <p id="lightbox-caption" class="text-white font-extrabold text-base mt-3 text-center drop-shadow"></p>
+      <a id="lightbox-whatsapp" href="#" target="_blank" rel="noopener"
+         class="mt-4 font-bold text-sm px-6 py-3 inline-flex items-center gap-2 shadow-xl bg-cinthec text-black hover:bg-emerald-400 transition-all">
+        🛒 Acquista questa foto su WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="mt-16 border-t border-neutral-800 bg-[#161616]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <img src="logo.png" alt="CintheC Logo" class="h-10 w-auto object-contain" />
+        <span class="text-neutral-400 text-sm font-medium">CintheC Photo Store — Tutti i diritti riservati</span>
+      </div>
+      <div class="flex items-center gap-4 text-xs text-neutral-400">
+        <a href="privacy.html" class="hover:text-cinthec transition-colors">Privacy Policy</a>
+        <span>•</span>
+        <a href="cookie.html" class="hover:text-cinthec transition-colors">Cookie Policy</a>
+        <span>•</span>
+        <a href="note-legali.html" class="hover:text-cinthec transition-colors">Note Legali</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== SCRIPT & FIREBASE LOGIC ===== -->
+  <script>
+    // Configurazione Firebase dal tuo progetto
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsa70phHFPOsQgwKdPd2IuBP-z5mP4Wyc",
+      authDomain: "foto-loggate-cinthec.firebaseapp.com",
+      projectId: "foto-loggate-cinthec",
+      storageBucket: "foto-loggate-cinthec.firebasestorage.app",
+      messagingSenderId: "17709084968",
+      appId: "1:17709084968:web:49816963bc1faf3d42a01d"
+    };
+
+    // Inizializzazione Firebase
+    firebase.initializeApp(firebaseConfig);
+    const storage = firebase.storage();
+
+    // Funzione per caricare le foto dinamicamente da Firebase Storage
+    async function loadFirebasePhotos(folderName, containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      // Se la griglia è già stata riempita prima, non ricaricarla ogni volta (ottimizzazione)
+      if (container.dataset.loaded === "true") return;
+
+      container.innerHTML = '<p class="text-neutral-400 text-xs col-span-full text-center py-6">Caricamento foto in corso...</p>';
+
+      try {
+        const listRef = storage.ref().child(folderName);
+        const res = await listRef.listAll();
+
+        if (res.items.length === 0) {
+          container.innerHTML = '<p class="text-neutral-500 text-xs col-span-full text-center py-6">Nessuna foto disponibile per questo match.</p>';
+          return;
+        }
+
+        container.innerHTML = ''; // Pulisce il testo di caricamento
+
+        for (const itemRef of res.items) {
+          const url = await itemRef.getDownloadURL();
+          const fileName = itemRef.name;
+
+          const card = document.createElement('div');
+          card.className = "bg-neutral-950 p-2.5 border border-neutral-800 flex flex-col justify-between";
+          card.innerHTML = `
+            <div class="relative aspect-[4/3] overflow-hidden cursor-pointer bg-black" onclick="openLightbox('${url}', '${folderName} / ${fileName}')">
+              <img src="${url}" alt="${fileName}" class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" loading="lazy" />
+              <div class="watermark"><span>CintheC</span></div>
+            </div>
+            <a href="https://wa.me/393277179868?text=${encodeURIComponent(`Ciao! Vorrei acquistare questa foto (${folderName} / ${fileName}):${url}`)}" target="_blank" rel="noopener"
+               class="mt-2.5 block text-center text-[11px] font-bold text-neutral-100 border border-neutral-700 bg-neutral-900 py-2 hover:bg-neutral-800 transition-colors">
+              🛒 Acquista foto
+            </a>
+          `;
+          container.appendChild(card);
+        }
+
+        container.dataset.loaded = "true"; // Segna come caricato
+      } catch (error) {
+        console.error("Errore caricamento Storage:", error);
+        container.innerHTML = '<p class="text-red-400 text-xs col-span-full text-center py-6">Errore di connessione a Firebase Storage.</p>';
+      }
+    }
+
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    function openLightbox(imgSrc, captionText) {
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      const lightboxCaption = document.getElementById('lightbox-caption');
+      const lightboxWhatsapp = document.getElementById('lightbox-whatsapp');
+
+      lightboxImg.src = imgSrc;
+      lightboxCaption.textContent = captionText;
+      
+      const waText = encodeURIComponent(`Ciao! Vorrei acquistare questa specifica foto (${captionText}): ${imgSrc}`);
+      lightboxWhatsapp.href = `https://wa.me/393277179868?text=${waText}`;
+
+      lightbox.classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.add('hidden');
+    }
+
+    function filterMatches() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.match-card');
+
+      cards.forEach(card => {
+        const searchData = card.getAttribute('data-search').toLowerCase();
+        if (searchData.includes(input)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
