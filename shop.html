@@ -35,10 +35,9 @@
 </head>
 <body class="font-sans min-h-screen antialiased">
 
-  <!-- ===== HEADER (Con scritta "Acquista le tue foto e video" visibile su mobile e PC) ===== -->
+  <!-- ===== HEADER STICKY ===== -->
   <header class="sticky top-0 z-40 bg-[#161616] border-b border-neutral-800 shadow-xl">
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 flex flex-row items-center justify-between gap-2">
-      
       <!-- LOGO GRANDE + TITOLO/DESCRIZIONE -->
       <div class="flex items-center gap-3">
         <a href="index.html" class="flex items-center shrink-0 -ml-1 sm:-ml-2">
@@ -66,23 +65,75 @@
     </div>
   </header>
 
-  <!-- ===== BARRA DI RICERCA MATCH ===== -->
-  <section class="max-w-7xl mx-auto px-2 sm:px-4 pt-4">
-    <div class="bg-[#1a1a1a] border-2 border-neutral-700 p-3 shadow-2xl flex flex-col sm:flex-row items-center gap-2">
-      <div class="flex items-center gap-2 text-cinthec font-bold text-xs sm:text-sm shrink-0">
-        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <span>Cerca:</span>
+  <!-- ===== NUOVA HERO SECTION & COME FUNZIONA (CON FOTO PERSONALIZZATA) ===== -->
+  <section class="relative py-12 sm:py-16 px-4 border-b border-neutral-800 shadow-2xl overflow-hidden">
+    
+    <!-- L'IMMAGINE DI SFONDO (hero.jpg) -->
+    <img src="hero.jpg" class="absolute inset-0 w-full h-full object-cover opacity-40 z-0" alt="CintheC X Evento">
+    
+    <!-- Overlay sfumato per fondere l'immagine e far leggere il testo -->
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-[#121212]/80 to-[#121212] z-0"></div>
+
+    <!-- CONTENUTO HERO (z-10 per stare sopra l'immagine) -->
+    <div class="relative z-10 max-w-5xl mx-auto text-center">
+      
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-black text-white uppercase tracking-tight mb-4 drop-shadow-lg">
+        CintheC X <span class="text-cinthec block sm:inline">— Contenuti Ufficiali</span>
+      </h1>
+      <p class="text-sm sm:text-base text-gray-300 mb-10 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md">
+        Rivivi l'adrenalina dell'evento. Scegli i pacchetti completi o sfoglia le gallery dei singoli scatti. Richiedi i tuoi file originali, in alta definizione e senza filigrana, direttamente tramite WhatsApp!
+      </p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left mt-6">
+        <!-- Step 1 -->
+        <div class="bg-black/60 backdrop-blur-sm border border-neutral-800/80 p-5 flex items-start gap-4 rounded-lg shadow-xl">
+          <div class="w-8 h-8 shrink-0 bg-neutral-800 border border-neutral-600 text-cinthec font-black rounded flex items-center justify-center text-lg">1</div>
+          <div>
+            <h3 class="text-white font-bold text-sm">Scegli i contenuti</h3>
+            <p class="text-[11px] text-gray-400 mt-1">Apri il match, guarda le anteprime e seleziona il pacchetto o la singola foto che preferisci.</p>
+          </div>
+        </div>
+        <!-- Step 2 -->
+        <div class="bg-black/60 backdrop-blur-sm border border-neutral-800/80 p-5 flex items-start gap-4 rounded-lg shadow-xl">
+          <div class="w-8 h-8 shrink-0 bg-[#25D366] text-black font-black rounded flex items-center justify-center text-lg shadow-[0_0_10px_rgba(37,211,102,0.3)]">2</div>
+          <div>
+            <h3 class="text-white font-bold text-sm">Invia la richiesta</h3>
+            <p class="text-[11px] text-gray-400 mt-1">Clicca sui tasti di acquisto. Si aprirà WhatsApp con il messaggio già pronto per noi.</p>
+          </div>
+        </div>
+        <!-- Step 3 -->
+        <div class="bg-black/60 backdrop-blur-sm border border-neutral-800/80 p-5 flex items-start gap-4 rounded-lg shadow-xl">
+          <div class="w-8 h-8 shrink-0 bg-neutral-800 border border-neutral-600 text-white font-black rounded flex items-center justify-center text-lg">3</div>
+          <div>
+            <h3 class="text-white font-bold text-sm">Ricevi il Link Drive</h3>
+            <p class="text-[11px] text-gray-400 mt-1">Concludi in chat e ricevi istantaneamente l'accesso alla tua cartella protetta.</p>
+          </div>
+        </div>
       </div>
-      <input type="text" id="searchInput" onkeyup="filterMatches()" placeholder="Digita lottatore o disciplina..." 
-             class="w-full bg-neutral-900 border border-neutral-700 text-white px-3 py-2 text-xs sm:text-sm focus:outline-none focus:border-cinthec placeholder-neutral-400" />
+
     </div>
   </section>
 
-  <!-- ===== CONTENUTO PRINCIPALE (GRIGLIA MATCH: 2 COLONNE SU MOBILE, 3 SU DESKTOP) ===== -->
+  <!-- ===== FILTRI SELEZIONE DISCIPLINA (MMA / K-1) ===== -->
+  <section class="max-w-7xl mx-auto px-2 sm:px-4 pt-6">
+    <div class="flex flex-row items-center gap-2 sm:gap-4">
+      <button onclick="filterCategory('all')" id="btn-all" class="flex-1 bg-cinthec text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center">
+        ⚡ Tutti
+      </button>
+      <button onclick="filterCategory('mma')" id="btn-mma" class="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 hover:border-cinthec font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center">
+        MMA
+      </button>
+      <button onclick="filterCategory('k1')" id="btn-k1" class="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 hover:border-k1color font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center">
+        K-1
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== CONTENUTO PRINCIPALE ===== -->
   <main class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 space-y-8">
 
     <!-- SEZIONE MMA -->
-    <section class="match-category-section">
+    <section id="section-mma" class="match-category-section">
       <div class="flex items-center gap-2 mb-2">
         <span class="inline-block w-1.5 h-6 bg-cinthec"></span>
         <h2 class="text-white font-extrabold text-xl sm:text-2xl tracking-tight">MMA</h2>
@@ -93,7 +144,7 @@
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4" id="mma-grid">
 
         <!-- MATCH 1 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Marina Chiarello Enza Mallone MMA Match 1">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5485439/pexels-photo-5485439.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -115,7 +166,7 @@
         </div>
 
         <!-- MATCH 2 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Andrea Biffi Christian Zechetto MMA Match 2">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5424766/pexels-photo-5424766.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -137,7 +188,7 @@
         </div>
 
         <!-- MATCH 3 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Maikol Garcia Luca Finotti MMA Match 3">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5485621/pexels-photo-5485621.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -159,7 +210,7 @@
         </div>
 
         <!-- MATCH 4 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Lorenzo Vasini Andrea Piccinini MMA Match 4">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5616794/pexels-photo-5616794.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -181,7 +232,7 @@
         </div>
 
         <!-- MATCH 5 (MAIN CARD) -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Mattia Marostegan Riccardo Muso Main Card Match 5 MMA">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5485616/pexels-photo-5485616.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -203,7 +254,7 @@
         </div>
 
         <!-- MATCH 6 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Maura Brunello Giulia Garofalo Main Card Match 6 MMA">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5485533/pexels-photo-5485533.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -225,7 +276,7 @@
         </div>
 
         <!-- MATCH 7 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Giovanni Annania Roman Bondariuk Main Card Match 7 MMA">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/27833607/pexels-photo-27833607.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -250,7 +301,7 @@
     </section>
 
     <!-- SEZIONE K-1 -->
-    <section class="pt-4 match-category-section">
+    <section id="section-k1" class="pt-4 match-category-section">
       <div class="flex items-center gap-2 mb-2">
         <span class="inline-block w-1.5 h-6 bg-k1color"></span>
         <h2 class="text-white font-extrabold text-xl sm:text-2xl tracking-tight">K-1</h2>
@@ -261,7 +312,7 @@
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4" id="k1-grid">
 
         <!-- MATCH 8 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Andrea Pignatelli Monaco Gosue K1 Match 8">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5525492/pexels-photo-5525492.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -283,7 +334,7 @@
         </div>
 
         <!-- MATCH 9 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Matteo Perini Gurami Berikishvili K1 Match 9">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5424764/pexels-photo-5424764.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -305,7 +356,7 @@
         </div>
 
         <!-- MATCH 10 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Massimo Chiril Riccardo Di Pasquale K1 Match 10">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/17892107/pexels-photo-17892107.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -327,7 +378,7 @@
         </div>
 
         <!-- MATCH 11 (MAIN EVENT) -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3" data-search="Nicola Varagnolo Andrea Zorzi K1 Main Event Match 11">
+        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/11045336/pexels-photo-11045336.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
@@ -354,7 +405,7 @@
   </main>
 
   <!-- ======================================================= -->
-  <!-- POP-UP MODALS CON I 3 TASTI D'ACQUISTO E GRIGLIA FOTO -->
+  <!-- POP-UP MODALS                                           -->
   <!-- ======================================================= -->
 
   <!-- POP-UP MATCH 1 -->
@@ -368,15 +419,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Marina Chiarello vs Enza Mallone</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Marina%20Chiarello%20vs%20Enza%20Mallone" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Marina%20Chiarello%20vs%20Enza%20Mallone" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Marina%20Chiarello%20vs%20Enza%20Mallone" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-mma-1" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-mma-1" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -391,15 +445,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Andrea Biffi vs Christian Zechetto</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Andrea%20Biffi%20vs%20Christian%20Zechetto" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Andrea%20Biffi%20vs%20Christian%20Zechetto" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Andrea%20Biffi%20vs%20Christian%20Zechetto" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-mma-2" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-mma-2" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -414,15 +471,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Maikol Garcia vs Luca Finotti</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Maikol%20Garcia%20vs%20Luca%20Finotti" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Maikol%20Garcia%20vs%20Luca%20Finotti" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Maikol%20Garcia%20vs%20Luca%20Finotti" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-mma-3" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-mma-3" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -437,15 +497,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Lorenzo Vasini vs Andrea Piccinini</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Lorenzo%20Vasini%20vs%20Andrea%20Piccinini" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Lorenzo%20Vasini%20vs%20Andrea%20Piccinini" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Lorenzo%20Vasini%20vs%20Andrea%20Piccinini" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-mma-4" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-mma-4" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -460,15 +523,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Mattia Marostegan vs Riccardo Muso</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Mattia%20Marostegan%20vs%20Riccardo%20Muso" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Mattia%20Marostegan%20vs%20Riccardo%20Muso" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Mattia%20Marostegan%20vs%20Riccardo%20Muso" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-mma-5" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-mma-5" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -483,15 +549,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Maura Brunello vs Giulia Garofalo</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Maura%20Brunello%20vs%20Giulia%20Garofalo" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Maura%20Brunello%20vs%20Giulia%20Garofalo" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Maura%20Brunello%20vs%20Giulia%20Garofalo" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-mma-6" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-mma-6" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -506,15 +575,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Giovanni Annania vs Roman Bondariuk</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Giovanni%20Annania%20vs%20Roman%20Bondariuk" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Giovanni%20Annania%20vs%20Roman%20Bondariuk" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Giovanni%20Annania%20vs%20Roman%20Bondariuk" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-mma-7" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-mma-7" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -529,15 +601,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Andrea Pignatelli vs Monaco Gosue</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%3A%20Andrea%20Pignatelli%20vs%20Monaco%20Gosue" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%3A%20Andrea%20Pignatelli%20vs%20Monaco%20Gosue" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%3A%20Andrea%20Pignatelli%20vs%20Monaco%20Gosue" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-k1-1" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-k1-1" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -552,15 +627,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Matteo Perini vs Gurami Berikishvili</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%3A%20Matteo%20Perini%20vs%20Gurami%20Berikishvili" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%3A%20Matteo%20Perini%20vs%20Gurami%20Berikishvili" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%3A%20Matteo%20Perini%20vs%20Gurami%20Berikishvili" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-k1-2" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-k1-2" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -575,15 +653,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Massimo Chiril vs Riccardo Di Pasquale</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%3A%20Massimo%20Chiril%20vs%20Riccardo%20Di%20Pasquale" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%3A%20Massimo%20Chiril%20vs%20Riccardo%20Di%20Pasquale" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%3A%20Massimo%20Chiril%20vs%20Riccardo%20Di%20Pasquale" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-k1-3" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-k1-3" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -598,15 +679,18 @@
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Nicola Varagnolo vs Andrea Zorzi</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
-        <p class="text-neutral-300 text-xs font-semibold">Scegli cosa desideri acquistare:</p>
+        <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%20Main%20Event%3A%20Nicola%20Varagnolo%20vs%20Andrea%20Zorzi" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">📁 Album Intero Foto</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%20Main%20Event%3A%20Nicola%20Varagnolo%20vs%20Andrea%20Zorzi" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm">🎬 Tutte le Clip Video</a>
           <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%20Main%20Event%3A%20Nicola%20Varagnolo%20vs%20Andrea%20Zorzi" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm">🔥 Pacchetto Foto + Video</a>
         </div>
       </div>
-      <p class="text-neutral-400 text-xs mb-2 font-medium">Oppure seleziona e acquista le singole foto:</p>
-      <div id="grid-k1-4" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1"></div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico?</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      <div id="grid-k1-4" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
     </div>
   </div>
 
@@ -622,8 +706,9 @@
       </div>
       <p id="lightbox-caption" class="text-white font-extrabold text-sm sm:text-base mt-2 text-center drop-shadow"></p>
       <a id="lightbox-whatsapp" href="#" target="_blank" rel="noopener"
-         class="mt-3 font-bold text-xs sm:text-sm px-5 py-2.5 inline-flex items-center gap-2 shadow-xl bg-cinthec text-black hover:bg-emerald-400 transition-all">
-        🛒 Acquista questa foto su WhatsApp
+         class="mt-3 font-bold text-xs sm:text-sm px-5 py-2.5 inline-flex items-center gap-2 shadow-xl bg-cinthec text-black hover:bg-emerald-400 transition-all rounded-full">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/></svg>
+        Acquista su WhatsApp
       </a>
     </div>
   </div>
@@ -659,6 +744,37 @@
     firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
 
+    // Funzione filtro per i bottoni MMA / K-1 / Tutti
+    function filterCategory(category) {
+      const sectionMma = document.getElementById('section-mma');
+      const sectionK1 = document.getElementById('section-k1');
+      
+      const btnAll = document.getElementById('btn-all');
+      const btnMma = document.getElementById('btn-mma');
+      const btnK1 = document.getElementById('btn-k1');
+
+      // Stili di default non attivi per i bottoni
+      const inactiveStyle = "flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center";
+
+      btnAll.className = inactiveStyle;
+      btnMma.className = inactiveStyle;
+      btnK1.className = inactiveStyle;
+
+      if (category === 'all') {
+        sectionMma.style.display = 'block';
+        sectionK1.style.display = 'block';
+        btnAll.className = "flex-1 bg-cinthec text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center";
+      } else if (category === 'mma') {
+        sectionMma.style.display = 'block';
+        sectionK1.style.display = 'none';
+        btnMma.className = "flex-1 bg-cinthec text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center";
+      } else if (category === 'k1') {
+        sectionMma.style.display = 'none';
+        sectionK1.style.display = 'block';
+        btnK1.className = "flex-1 bg-k1color text-white font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center";
+      }
+    }
+
     async function loadFirebasePhotos(folderName, containerId) {
       const container = document.getElementById(containerId);
       if (!container) return;
@@ -680,18 +796,24 @@
         for (const itemRef of res.items) {
           const url = await itemRef.getDownloadURL();
           const fileName = itemRef.name;
+          const waUrl = `https://wa.me/393277179868?text=${encodeURIComponent(`Ciao! Vorrei acquistare questa foto (${folderName} / ${fileName}):${url}`)}`;
 
           const card = document.createElement('div');
-          card.className = "bg-neutral-950 p-2 border border-neutral-800 flex flex-col justify-between";
+          card.className = "group relative aspect-[4/3] overflow-hidden cursor-pointer bg-black border border-neutral-800 shadow-md";
+          card.onclick = () => openLightbox(url, `${folderName} / ${fileName}`);
+          
           card.innerHTML = `
-            <div class="relative aspect-[4/3] overflow-hidden cursor-pointer bg-black" onclick="openLightbox('${url}', '${folderName} / ${fileName}')">
-              <img src="${url}" alt="${fileName}" class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" loading="lazy" />
-              <div class="watermark"><span>CintheC</span></div>
+            <img src="${url}" alt="${fileName}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+            <div class="watermark"><span>CintheC</span></div>
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[1px]">
+              <a href="${waUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()"
+                 class="bg-[#25D366] hover:bg-[#1DA851] text-white font-extrabold text-xs py-2 px-4 rounded-full flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/>
+                </svg>
+                Richiedi
+              </a>
             </div>
-            <a href="https://wa.me/393277179868?text=${encodeURIComponent(`Ciao! Vorrei acquistare questa foto (${folderName} / ${fileName}):${url}`)}" target="_blank" rel="noopener"
-               class="mt-2 block text-center text-[10px] font-bold text-neutral-100 border border-neutral-700 bg-neutral-900 py-1.5 hover:bg-neutral-800 transition-colors">
-              🛒 Acquista
-            </a>
           `;
           container.appendChild(card);
         }
@@ -736,20 +858,6 @@
 
     function closeLightbox() {
       document.getElementById('lightbox').classList.add('hidden');
-    }
-
-    function filterMatches() {
-      const input = document.getElementById('searchInput').value.toLowerCase();
-      const cards = document.querySelectorAll('.match-card');
-
-      cards.forEach(card => {
-        const searchData = card.getAttribute('data-search').toLowerCase();
-        if (searchData.includes(input)) {
-          card.style.display = 'flex';
-        } else {
-          card.style.display = 'none';
-        }
-      });
     }
   </script>
 
