@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CintheC X — Live Streaming</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Collegamento allo stesso foglio di stile esterno -->
+  <link rel="stylesheet" href="shop.css">
+
+  <!-- Firebase App (Core) e Firebase Auth SDK (Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cinthec: '#00ff66',
+            'cinthec-dark': '#00cc52',
+            k1color: '#ff3333',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="font-sans min-h-screen antialiased bg-[#121212] text-white">
+
+  <!-- ===== HEADER STICKY ===== -->
+  <header class="sticky top-0 z-40 bg-[#161616] border-b border-neutral-800 shadow-xl">
+    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 flex flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="flex items-center shrink-0 -ml-1 sm:-ml-2">
+          <img src="logoc.png" alt="CintheC Logo" class="h-12 sm:h-20 w-auto object-contain scale-110 sm:scale-125 origin-left" />
+        </a>
+        <div class="block">
+          <h1 class="text-white font-extrabold text-xs sm:text-sm leading-tight">
+            CintheC X — Live Arena
+          </h1>
+          <p class="text-cinthec text-[10px] sm:text-xs font-bold mt-0.5 tracking-wide flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Streaming in Diretta
+          </p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <a href="shop.html" class="inline-flex items-center gap-1.5 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 hover:border-cinthec font-extrabold text-xs sm:text-sm px-3 py-2 transition shadow-lg shrink-0">
+          🛒 Shop
+        </a>
+        <a href="index.html" class="inline-flex items-center gap-1.5 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 hover:border-cinthec font-extrabold text-xs sm:text-sm px-3 py-2 transition shadow-lg shrink-0">
+          🏠 Home
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== CONTENUTO PRINCIPALE LIVE ===== -->
+  <main class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+
+    <div class="text-center space-y-2">
+      <span class="inline-block px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/30 text-xs font-extrabold uppercase tracking-widest rounded-full">
+        🔴 Canale Ufficiale CintheC X
+      </span>
+      <h2 class="text-2xl sm:text-4xl font-black uppercase tracking-tight">
+        Segui i Match in Diretta
+      </h2>
+      <p class="text-xs sm:text-sm text-neutral-400 max-w-xl mx-auto">
+        La trasmissione ufficiale dell'evento in alta definizione.
+      </p>
+    </div>
+
+    <!-- AREA PROTETTA DEL PLAYER -->
+    <div id="live-container" class="w-full aspect-video bg-black border-2 border-neutral-800 shadow-2xl relative overflow-hidden flex items-center justify-center">
+      
+      <!-- STATO 1: BLOCCATO (Struttura a 2 Step) -->
+      <div id="locked-state" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-neutral-900 to-black z-20">
+        <div class="w-12 h-12 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-k1color mb-2 shadow-xl">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        
+        <h3 class="text-white font-extrabold text-base sm:text-xl mb-4">Contenuto Riservato</h3>
+        
+        <!-- Box dei 2 Step -->
+        <div class="w-full max-w-md space-y-3 text-left">
+          
+          <!-- STEP 1 -->
+          <div class="bg-neutral-900/90 border border-neutral-800 p-4 rounded flex items-center justify-between gap-3 shadow-lg">
+            <div>
+              <span class="text-cinthec text-[10px] font-extrabold uppercase">Step 1</span>
+              <p class="text-white text-xs sm:text-sm font-bold">Acquista il pass live</p>
+            </div>
+            <a href="https://TUO-LINK-LEMON-SQUEEZY.lemonsqueezy.com/checkout" target="_blank" rel="noopener" 
+               class="bg-cinthec hover:bg-emerald-400 text-black font-extrabold text-xs py-2.5 px-4 rounded shadow uppercase tracking-wider transition shrink-0">
+              Acquista Pass Live
+            </a>
+          </div>
+
+          <!-- STEP 2 -->
+          <div class="bg-neutral-900/90 border border-neutral-800 p-4 rounded flex items-center justify-between gap-3 shadow-lg">
+            <div>
+              <span class="text-cinthec text-[10px] font-extrabold uppercase">Step 2</span>
+              <p class="text-white text-xs sm:text-sm font-bold">Accedi con la tua mail d'acquisto</p>
+            </div>
+            <button onclick="openLoginModal()" 
+                    class="bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-600 font-extrabold text-xs py-2.5 px-5 rounded shadow uppercase tracking-wider transition shrink-0">
+              Accedi
+            </button>
+          </div>
+
+        </div>
+
+        <p class="text-neutral-500 text-[10px] mt-4 max-w-xs">
+          Assicurati di effettuare l'accesso utilizzando la stessa email indicata durante il pagamento.
+        </p>
+      </div>
+
+      <!-- STATO 2: SBLOCCATO (Il Player YouTube Pulito) -->
+      <div id="unlocked-state" class="absolute inset-0 hidden z-10">
+        <iframe 
+          class="w-full h-full"
+          src="https://www.youtube-nocookie.com/embed/TUA_ID_VIDEO_YOUTUBE?controls=1&modestbranding=1&rel=0&iv_load_policy=3&autoplay=0" 
+          title="CintheC Live Stream" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          allowfullscreen>
+        </iframe>
+      </div>
+
+    </div>
+
+    <!-- BOX SUPPORTO -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-[#1a1a1a] border border-neutral-800 p-5 flex flex-col justify-between shadow-lg">
+        <div>
+          <span class="text-cinthec text-[10px] font-extrabold uppercase tracking-wider">Info Trasmissione</span>
+          <h4 class="text-white font-bold text-base mt-1">CintheC X Official Arena</h4>
+          <p class="text-neutral-400 text-xs mt-2 leading-relaxed">
+            Il browser ricorderà il tuo accesso in automatico per le prossime visite.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-[#1a1a1a] border border-neutral-800 p-5 flex flex-col justify-between shadow-lg">
+        <div>
+          <span class="text-[#25D366] text-[10px] font-extrabold uppercase tracking-wider">Supporto Rapido</span>
+          <h4 class="text-white font-bold text-base mt-1">Problemi con l'accesso?</h4>
+          <p class="text-neutral-400 text-xs mt-2 leading-relaxed">
+            Se riscontri problemi con la mail di registrazione o l'acquisto, scrivici direttamente su WhatsApp.
+          </p>
+        </div>
+        <div class="mt-4">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Ho%20bisogno%20di%20assistenza%20per%20l'accesso%20alla%20live" target="_blank" rel="noopener"
+             class="inline-flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1DA851] text-white font-extrabold text-xs py-2.5 px-4 rounded transition-all shadow-md">
+            Contatta l'Assistenza
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ===== MODALE DI LOGIN (POP-UP A SCOMPARSA) CON SPUNTE POLICY OBBLIGATORIE ===== -->
+  <div id="login-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-3 z-50">
+    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-sm w-full p-5 relative shadow-2xl rounded-lg max-h-[90vh] overflow-y-auto">
+      
+      <!-- Tasto chiudi modale -->
+      <button onclick="closeLoginModal()" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-1.5 rounded transition-colors">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <h3 class="text-white font-extrabold text-base mb-1">Accesso alla Live</h3>
+      <p class="text-neutral-400 text-[11px] mb-4">Inserisci la tua mail d'acquisto e la password per sbloccare lo streaming.</p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[10px] text-neutral-400 mb-1 font-bold uppercase">Email di acquisto</label>
+          <input type="email" id="auth-email" placeholder="tua@email.com" 
+                 class="w-full bg-neutral-900 border border-neutral-700 text-white px-3 py-2 text-xs rounded focus:outline-none focus:border-cinthec" />
+        </div>
+
+        <div>
+          <label class="block text-[10px] text-neutral-400 mb-1 font-bold uppercase">Password</label>
+          <input type="password" id="auth-password" placeholder="La tua password" 
+                 class="w-full bg-neutral-900 border border-neutral-700 text-white px-3 py-2 text-xs rounded focus:outline-none focus:border-cinthec" />
+        </div>
+
+        <!-- CHECKBOX OBBLIGATORIE PER PRIVACY, COOKIE E NOTE LEGALI -->
+        <div class="space-y-2 pt-1 text-[11px] text-neutral-300 border-t border-neutral-800 pt-3">
+          <label class="flex items-start gap-2 cursor-pointer">
+            <input type="checkbox" id="accept-privacy" onchange="checkPolicies()" class="mt-0.5 accent-[#00ff66]" />
+            <span>Accetto la <a href="privacy.html" target="_blank" class="text-cinthec underline">Privacy Policy</a></span>
+          </label>
+          <label class="flex items-start gap-2 cursor-pointer">
+            <input type="checkbox" id="accept-cookies" onchange="checkPolicies()" class="mt-0.5 accent-[#00ff66]" />
+            <span>Accetto i <a href="cookie.html" target="_blank" class="text-cinthec underline">Cookie Policy</a></span>
+          </label>
+          <label class="flex items-start gap-2 cursor-pointer">
+            <input type="checkbox" id="accept-legal" onchange="checkPolicies()" class="mt-0.5 accent-[#00ff66]" />
+            <span>Accetto le <a href="note-legali.html" target="_blank" class="text-cinthec underline">Note Legali</a></span>
+          </label>
+        </div>
+
+        <!-- BOTTONI DI ACCESSO (DISABILITATI FINCHÉ NON SI SPUNTANO LE 3 CASELLE) -->
+        <div class="flex gap-2 pt-2">
+          <button id="btn-login" onclick="handleLogin()" disabled 
+                  class="flex-1 bg-neutral-800 text-neutral-500 font-extrabold text-xs py-2.5 rounded transition shadow cursor-not-allowed">
+            Accedi
+          </button>
+          <button id="btn-register" onclick="handleRegister()" disabled 
+                  class="flex-1 bg-neutral-800 text-neutral-500 font-bold text-xs py-2.5 rounded transition border border-neutral-700 shadow cursor-not-allowed">
+            Registrati
+          </button>
+        </div>
+        
+        <p id="auth-error" class="text-red-400 text-[10px] text-center mt-2 hidden font-semibold"></p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="mt-12 border-t border-neutral-800 bg-[#161616]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+      <div class="flex items-center gap-2 justify-center">
+        <img src="logoc.png" alt="CintheC Logo" class="h-10 w-auto object-contain scale-125 origin-left" />
+        <span class="text-neutral-400 text-xs font-medium ml-2">CintheC Store — Tutti i diritti riservati</span>
+      </div>
+      <div class="flex items-center gap-3 text-[11px] text-neutral-400">
+        <a href="shop.html" class="hover:text-cinthec transition-colors">Shop</a>
+        <span>•</span>
+        <a href="privacy.html" class="hover:text-cinthec transition-colors">Privacy</a>
+        <span>•</span>
+        <a href="cookie.html" class="hover:text-cinthec transition-colors">Cookie</a>
+        <span>•</span>
+        <a href="note-legali.html" class="hover:text-cinthec transition-colors">Note Legali</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== SCRIPT FIREBASE AUTH & MODAL LOGIC ===== -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsa70phHFPOsQgwKdPd2IuBP-z5mP4Wyc",
+      authDomain: "foto-loggate-cinthec.firebaseapp.com",
+      projectId: "foto-loggate-cinthec",
+      storageBucket: "foto-loggate-cinthec.firebasestorage.app",
+      messagingSenderId: "17709084968",
+      appId: "1:17709084968:web:49816963bc1faf3d42a01d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Funzioni per aprire e chiudere la modale del login
+    function openLoginModal() {
+      document.getElementById('login-modal').classList.remove('hidden');
+    }
+
+    function closeLoginModal() {
+      document.getElementById('login-modal').classList.add('hidden');
+    }
+
+    // Funzione che controlla se le 3 spunte sono attive e abilita/disabilita i bottoni
+    function checkPolicies() {
+      const privacy = document.getElementById('accept-privacy').checked;
+      const cookies = document.getElementById('accept-cookies').checked;
+      const legal = document.getElementById('accept-legal').checked;
+      
+      const btnLogin = document.getElementById('btn-login');
+      const btnRegister = document.getElementById('btn-register');
+
+      if (privacy && cookies && legal) {
+        // Abilita i bottoni con i colori attivi
+        btnLogin.disabled = false;
+        btnLogin.className = "flex-1 bg-cinthec hover:bg-emerald-400 text-black font-extrabold text-xs py-2.5 rounded transition shadow cursor-pointer";
+        
+        btnRegister.disabled = false;
+        btnRegister.className = "flex-1 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs py-2.5 rounded transition border border-neutral-600 shadow cursor-pointer";
+      } else {
+        // Disabilita i bottoni se manca anche solo una spunta
+        btnLogin.disabled = true;
+        btnLogin.className = "flex-1 bg-neutral-800 text-neutral-500 font-extrabold text-xs py-2.5 rounded transition shadow cursor-not-allowed";
+        
+        btnRegister.disabled = true;
+        btnRegister.className = "flex-1 bg-neutral-800 text-neutral-500 font-bold text-xs py-2.5 rounded transition border border-neutral-700 shadow cursor-not-allowed";
+      }
+    }
+
+    // Funzione di Login
+    function handleLogin() {
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const errorEl = document.getElementById('auth-error');
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          console.log("Login effettuato:", userCredential.user.email);
+          closeLoginModal();
+        })
+        .catch((error) => {
+          errorEl.textContent = "Errore: " + error.message;
+          errorEl.classList.remove('hidden');
+        });
+    }
+
+    // Funzione di Registrazione
+    function handleRegister() {
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const errorEl = document.getElementById('auth-error');
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          console.log("Registrazione avvenuta:", userCredential.user.email);
+          alert("Registrazione completata con successo!");
+          closeLoginModal();
+        })
+        .catch((error) => {
+          errorEl.textContent = "Errore: " + error.message;
+          errorEl.classList.remove('hidden');
+        });
+    }
+
+    // Ascolta lo stato dell'utente (Il browser si ricorda dell'accesso in automatico)
+    auth.onAuthStateChanged((user) => {
+      const lockedState = document.getElementById('locked-state');
+      const unlockedState = document.getElementById('unlocked-state');
+
+      if (user) {
+        // Utente loggato -> Sblocca la live
+        lockedState.classList.add('hidden');
+        unlockedState.classList.remove('hidden');
+      } else {
+        // Utente non loggato -> Mostra blocco a step
+        lockedState.classList.remove('hidden');
+        unlockedState.classList.add('hidden');
+      }
+    });
+  </script>
+
+</body>
+</html>
