@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CintheC Photo & Video Store - Official Galleries</title>
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Collegamento al foglio di stile esterno -->
+  <!-- Collegamento al foglio di stile esterno (shop.css) -->
   <link rel="stylesheet" href="shop.css">
 
   <!-- Firebase App (Core) e Firebase Storage SDK (Compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+
+  <!-- Vanilla Tilt per l'effetto 3D delle card -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,11 +23,6 @@
     tailwind.config = {
       theme: {
         extend: {
-          colors: {
-            cinthec: '#00ff66',
-            'cinthec-dark': '#00cc52',
-            k1color: '#ff3333',
-          },
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
           },
@@ -32,31 +30,66 @@
       },
     };
   </script>
-</head>
-<body class="font-sans min-h-screen antialiased">
+  <style>
+    /* Canvas Sfondo Dinamico: Solo Brillantini/Particelle Luminose */
+    #cyberCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.85;
+    }
 
-  <!-- ===== HEADER STICKY ===== -->
-  <header class="sticky top-0 z-40 bg-[#161616] border-b border-neutral-800 shadow-xl">
-    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 flex flex-row items-center justify-between gap-2">
-      <!-- LOGO GRANDE + TITOLO/DESCRIZIONE -->
+    /* Assicuriamo che header, main, footer e modal stiano sopra il canvas */
+    header, main, footer {
+      position: relative;
+      z-index: 10;
+    }
+    .album-modal { z-index: 50; }
+    #lightbox { z-index: 100; }
+
+    /* Effetto Scroll Reveal */
+    .reveal-item {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-item.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="font-sans min-h-screen antialiased text-white">
+
+  <!-- CANVAS SFONDO DINAMICO (SOLO PUNTINI VERDI LUMINOSI) -->
+  <canvas id="cyberCanvas"></canvas>
+
+  <!-- ===== HEADER STICKY (LOGO E SCRITTE A SINISTRA, HOME A DESTRA) ===== -->
+  <header class="sticky top-0 bg-[#161616]/70 backdrop-blur-md border-b border-neutral-800/60 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-row items-center justify-between gap-2">
+      <!-- LOGO + TITOLO A SINISTRA SENZA MARGINI NEGATIVI -->
       <div class="flex items-center gap-3">
-        <a href="index.html" class="flex items-center shrink-0 -ml-1 sm:-ml-2">
+        <a href="index.html" class="flex items-center shrink-0 transition-transform duration-300 hover:scale-105">
           <img src="logoc.png" alt="CintheC Logo" class="h-12 sm:h-20 w-auto object-contain scale-110 sm:scale-125 origin-left" />
         </a>
         <div class="block">
           <h1 class="text-white font-extrabold text-xs sm:text-sm leading-tight">
             CintheC X — Galleries
           </h1>
-          <p class="text-cinthec text-[10px] sm:text-xs font-bold mt-0.5 tracking-wide">
+          <p class="text-neutral-400 text-[10px] sm:text-xs font-bold mt-0.5 tracking-wide">
             🛒 Acquista le tue foto e video
           </p>
         </div>
       </div>
       
-      <!-- TASTO HOME -->
-      <div class="flex items-center gap-3">
-        <a href="index.html" class="inline-flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 hover:border-cinthec font-extrabold text-xs sm:text-sm px-3.5 sm:px-4 py-2.5 transition shadow-lg shrink-0">
-          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cinthec" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <!-- TASTO HOME A DESTRA -->
+      <div class="flex items-center">
+        <a href="index.html" class="inline-flex items-center gap-2 bg-neutral-900/80 hover:bg-neutral-800 text-white border-2 border-neutral-700 hover:border-white font-extrabold text-xs sm:text-sm px-3.5 sm:px-4 py-2.5 transition-all duration-300 shadow-lg hover:scale-105 shrink-0">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
           </svg>
           Home
@@ -65,93 +98,116 @@
     </div>
   </header>
 
-  <!-- ===== NUOVA HERO SECTION & COME FUNZIONA (CON FOTO PERSONALIZZATA) ===== -->
-  <section class="relative py-12 sm:py-16 px-4 border-b border-neutral-800 shadow-2xl overflow-hidden">
-    
-    <!-- L'IMMAGINE DI SFONDO (hero.jpg) -->
-    <img src="hero.jpg" class="absolute inset-0 w-full h-full object-cover opacity-40 z-0" alt="CintheC X Evento">
-    
-    <!-- Overlay sfumato per fondere l'immagine e far leggere il testo -->
-    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-[#121212]/80 to-[#121212] z-0"></div>
+  <!-- ===== HERO SECTION ===== -->
+  <section class="relative py-16 sm:py-24 px-4 border-b border-neutral-800 shadow-2xl overflow-hidden bg-cover bg-center" style="background-image: url('hero.jpg');">
+    <div class="absolute inset-0 bg-black/60"></div>
 
-    <!-- CONTENUTO HERO (z-10 per stare sopra l'immagine) -->
-    <div class="relative z-10 max-w-5xl mx-auto text-center">
-      
+    <div class="relative z-10 max-w-5xl mx-auto text-center reveal-item">
+      <span class="inline-block bg-neutral-900/90 text-[#00ff66] border border-[#00ff66]/40 text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 shadow-md">
+        Stagione Ufficiale 2026
+      </span>
       <h1 class="text-4xl sm:text-5xl md:text-6xl font-black text-white uppercase tracking-tight mb-4 drop-shadow-lg">
-        CintheC X <span class="text-cinthec block sm:inline">— Contenuti Ufficiali</span>
+        CintheC X <span class="text-neutral-300 block sm:inline">— Contenuti Ufficiali</span>
       </h1>
-      <p class="text-sm sm:text-base text-gray-300 mb-10 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md">
+      <p class="text-sm sm:text-base text-gray-200 mb-10 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md">
         Rivivi l'adrenalina dell'evento. Scegli i pacchetti completi o sfoglia le gallery dei singoli scatti (5€ a foto). Richiedi i tuoi file originali, in alta definizione e senza filigrana, direttamente tramite WhatsApp!
       </p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left mt-6">
-        <!-- Step 1 -->
-        <div class="bg-black/60 backdrop-blur-sm border border-neutral-800/80 p-5 flex items-start gap-4 rounded-lg shadow-xl">
-          <div class="w-8 h-8 shrink-0 bg-neutral-800 border border-neutral-600 text-cinthec font-black rounded flex items-center justify-center text-lg">1</div>
+        <div class="bg-black/80 backdrop-blur-md border border-neutral-800 p-5 flex items-start gap-4 shadow-xl transition-all duration-300 hover:border-[#00ff66] hover:-translate-y-1">
+          <div class="w-8 h-8 shrink-0 bg-neutral-800 border border-neutral-600 text-white font-black flex items-center justify-center text-lg shadow-inner">1</div>
           <div>
             <h3 class="text-white font-bold text-sm">Scegli i contenuti</h3>
-            <p class="text-[11px] text-gray-400 mt-1">Apri il match, guarda le anteprime e seleziona il pacchetto o la singola foto che preferisci.</p>
+            <p class="text-[11px] text-gray-300 mt-1">Apri il match, guarda le anteprime e seleziona il pacchetto o la singola foto che preferisci.</p>
           </div>
         </div>
-        <!-- Step 2 -->
-        <div class="bg-black/60 backdrop-blur-sm border border-neutral-800/80 p-5 flex items-start gap-4 rounded-lg shadow-xl">
-          <div class="w-8 h-8 shrink-0 bg-[#25D366] text-black font-black rounded flex items-center justify-center text-lg shadow-[0_0_10px_rgba(37,211,102,0.3)]">2</div>
+        <div class="bg-black/80 backdrop-blur-md border border-neutral-800 p-5 flex items-start gap-4 shadow-xl transition-all duration-300 hover:border-[#00ff66] hover:-translate-y-1">
+          <div class="w-8 h-8 shrink-0 bg-[#00ff66] text-black font-black flex items-center justify-center text-lg shadow-md">2</div>
           <div>
             <h3 class="text-white font-bold text-sm">Invia la richiesta</h3>
-            <p class="text-[11px] text-gray-400 mt-1">Clicca sui tasti di acquisto. Si aprirà WhatsApp con il messaggio già pronto per noi.</p>
+            <p class="text-[11px] text-gray-300 mt-1">Clicca sui tasti di acquisto. Si aprirà WhatsApp con il messaggio già pronto per noi.</p>
           </div>
         </div>
-        <!-- Step 3 -->
-        <div class="bg-black/60 backdrop-blur-sm border border-neutral-800/80 p-5 flex items-start gap-4 rounded-lg shadow-xl">
-          <div class="w-8 h-8 shrink-0 bg-neutral-800 border border-neutral-600 text-white font-black rounded flex items-center justify-center text-lg">3</div>
+        <div class="bg-black/80 backdrop-blur-md border border-neutral-800 p-5 flex items-start gap-4 shadow-xl transition-all duration-300 hover:border-[#00ff66] hover:-translate-y-1">
+          <div class="w-8 h-8 shrink-0 bg-neutral-800 border border-neutral-600 text-white font-black flex items-center justify-center text-lg shadow-inner">3</div>
           <div>
-            <h3 class="text-white font-bold text-sm">Ricevi il Link Drive</h3>
-            <p class="text-[11px] text-gray-400 mt-1">Concludi in chat e ricevi istantaneamente l'accesso alla tua cartella protetta.</p>
+            <h3 class="text-white font-bold text-sm">Ricevi il Link</h3>
+            <p class="text-[11px] text-gray-300 mt-1">Concludi in chat e ricevi istantaneamente l'accesso alla tua cartella protetta.</p>
           </div>
         </div>
       </div>
-
     </div>
   </section>
 
-  <!-- ===== FILTRI SELEZIONE DISCIPLINA (MMA / K-1) ===== -->
-  <section class="max-w-7xl mx-auto px-2 sm:px-4 pt-6">
+  <!-- ===== SEZIONE IN EVIDENZA: BUNDLE SPECIALE FOTO + VIDEO ===== -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 reveal-item">
+    <div data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15" class="bg-gradient-to-br from-neutral-900 via-[#1a1a1a] to-neutral-900 border border-[#00ff66]/60 hover:border-white transition-all duration-500 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden group">
+      <div class="absolute -right-20 -bottom-20 w-72 h-72 bg-[#00ff66]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-[#00ff66]/20 transition-all duration-700"></div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center relative z-10">
+        <div class="lg:col-span-2 space-y-3">
+          <span class="inline-flex items-center gap-1.5 bg-[#00ff66] text-black text-[10px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-md shadow-lg animate-pulse">
+            🔥 Offerta Match Day in Evidenza
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+            Pacchetto Totale <span class="text-neutral-400">Foto + Video Ufficiali</span>
+          </h2>
+          <p class="text-neutral-400 text-xs sm:text-sm leading-relaxed">
+            Non perdere nessun dettaglio del tuo incontro. Assicura alla tua performance il reportage fotografico completo in HD e tutte le clip video del match per i tuoi canali social.
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row lg:flex-col items-center justify-between gap-4 bg-black/60 border border-neutral-800 p-4 rounded-xl backdrop-blur-sm">
+          <div class="text-center sm:text-left lg:text-center">
+            <span class="text-neutral-500 line-through text-xs font-semibold">€80,00</span>
+            <div class="text-2xl sm:text-3xl font-black text-white">€60,00</div>
+          </div>
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20bloccare%20il%20pacchetto%20in%20offerta%20speciale%20Foto%20+%20Video%20in%20evidenza." target="_blank" rel="noopener" class="w-full bg-[#00ff66] hover:bg-[#00cc52] text-black font-extrabold text-xs sm:text-sm py-3 px-6 rounded-lg transition-all duration-300 shadow-xl hover:scale-105 active:scale-95 text-center uppercase tracking-wider">
+            Blocca Offerta su WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FILTRI SELEZIONE DISCIPLINA ===== -->
+  <section class="max-w-7xl mx-auto px-2 sm:px-4 pt-8 reveal-item">
     <div class="flex flex-row items-center gap-2 sm:gap-4">
-      <button onclick="filterCategory('all')" id="btn-all" class="flex-1 bg-cinthec text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center">
+      <button onclick="filterCategory('all')" id="btn-all" class="flex-1 bg-white text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]">
         ⚡ Tutti
       </button>
-      <button onclick="filterCategory('mma')" id="btn-mma" class="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 hover:border-cinthec font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center">
+      <button onclick="filterCategory('mma')" id="btn-mma" class="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]">
         MMA
       </button>
-      <button onclick="filterCategory('k1')" id="btn-k1" class="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 hover:border-k1color font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center">
+      <button onclick="filterCategory('k1')" id="btn-k1" class="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]">
         K-1
       </button>
     </div>
   </section>
 
   <!-- ===== CONTENUTO PRINCIPALE ===== -->
-  <main class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 space-y-8">
+  <main class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 space-y-8">
 
     <!-- SEZIONE MMA -->
-    <section id="section-mma" class="match-category-section">
+    <section id="section-mma" class="match-category-section reveal-item">
       <div class="flex items-center gap-2 mb-2">
-        <span class="inline-block w-1.5 h-6 bg-cinthec"></span>
+        <span class="inline-block w-1.5 h-6 bg-[#00ff66]"></span>
         <h2 class="text-white font-extrabold text-xl sm:text-2xl tracking-tight">MMA</h2>
         <span class="text-neutral-400 text-xs sm:text-sm font-light">Galleries &amp; Videos</span>
       </div>
       <div class="section-divider w-full mb-4"></div>
 
-      <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4" id="mma-grid">
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" id="mma-grid">
 
         <!-- MATCH 1 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5485439/pexels-photo-5485439.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/5424766/pexels-photo-5424766.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-cinthec/10 text-cinthec text-[9px] sm:text-[10px] font-bold uppercase border border-cinthec/30">Match 1 • MMA</span>
+              <span class="px-1.5 py-0.5 bg-neutral-800 text-white text-[9px] sm:text-[10px] font-bold uppercase border border-neutral-700">Match 1 • MMA</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Marina Chiarello</strong><br><span class="text-neutral-400 text-[9px]">Codice mma</span></div>
                 <div><strong class="text-white font-semibold">Enza Mallone</strong><br><span class="text-neutral-400 text-[9px]">Fight gym</span></div>
@@ -166,14 +222,14 @@
         </div>
 
         <!-- MATCH 2 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5424766/pexels-photo-5424766.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/5485621/pexels-photo-5485621.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-cinthec/10 text-cinthec text-[9px] sm:text-[10px] font-bold uppercase border border-cinthec/30">Match 2 • MMA</span>
+              <span class="px-1.5 py-0.5 bg-neutral-800 text-white text-[9px] sm:text-[10px] font-bold uppercase border border-neutral-700">Match 2 • MMA</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Andrea Biffi</strong><br><span class="text-neutral-400 text-[9px]">King Fit</span></div>
                 <div><strong class="text-white font-semibold">Christian Zechetto</strong><br><span class="text-neutral-400 text-[9px]">Sport Accademy</span></div>
@@ -188,14 +244,14 @@
         </div>
 
         <!-- MATCH 3 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5485621/pexels-photo-5485621.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/5616794/pexels-photo-5616794.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-cinthec/10 text-cinthec text-[9px] sm:text-[10px] font-bold uppercase border border-cinthec/30">Match 3 • MMA</span>
+              <span class="px-1.5 py-0.5 bg-neutral-800 text-white text-[9px] sm:text-[10px] font-bold uppercase border border-neutral-700">Match 3 • MMA</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Maikol Garcia</strong><br><span class="text-neutral-400 text-[9px]">King Fit</span></div>
                 <div><strong class="text-white font-semibold">Luca Finotti</strong><br><span class="text-neutral-400 text-[9px]">Orizon</span></div>
@@ -210,14 +266,14 @@
         </div>
 
         <!-- MATCH 4 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5616794/pexels-photo-5616794.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/5485616/pexels-photo-5485616.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-cinthec/10 text-cinthec text-[9px] sm:text-[10px] font-bold uppercase border border-cinthec/30">Match 4 • MMA</span>
+              <span class="px-1.5 py-0.5 bg-neutral-800 text-white text-[9px] sm:text-[10px] font-bold uppercase border border-neutral-700">Match 4 • MMA</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Lorenzo Vasini</strong><br><span class="text-neutral-400 text-[9px]">Urban Arena</span></div>
                 <div><strong class="text-white font-semibold">Andrea Piccinini</strong><br><span class="text-neutral-400 text-[9px]">Fight Ravenna</span></div>
@@ -232,14 +288,14 @@
         </div>
 
         <!-- MATCH 5 (MAIN CARD) -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5485616/pexels-photo-5485616.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/5485533/pexels-photo-5485533.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-cinthec text-black text-[9px] sm:text-[10px] font-extrabold uppercase">Main • Match 5</span>
+              <span class="px-1.5 py-0.5 bg-[#00ff66] text-black text-[9px] sm:text-[10px] font-extrabold uppercase">Main • Match 5</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Mattia Marostegan</strong><br><span class="text-neutral-400 text-[9px]">Team Kodiac</span></div>
                 <div><strong class="text-white font-semibold">Riccardo Muso</strong><br><span class="text-neutral-400 text-[9px]">La Superba</span></div>
@@ -254,14 +310,14 @@
         </div>
 
         <!-- MATCH 6 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5485533/pexels-photo-5485533.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/28560744/pexels-photo-28560744.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-cinthec text-black text-[9px] sm:text-[10px] font-extrabold uppercase">Main • Match 6</span>
+              <span class="px-1.5 py-0.5 bg-[#00ff66] text-black text-[9px] sm:text-[10px] font-extrabold uppercase">Main • Match 6</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Maura Brunello</strong><br><span class="text-neutral-400 text-[9px]">Kodiac Team</span></div>
                 <div><strong class="text-white font-semibold">Giulia Garofalo</strong><br><span class="text-neutral-400 text-[9px]">Fight Ravenna</span></div>
@@ -276,14 +332,14 @@
         </div>
 
         <!-- MATCH 7 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/27833607/pexels-photo-27833607.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/28560751/pexels-photo-28560751.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-cinthec text-black text-[9px] sm:text-[10px] font-extrabold uppercase">Main • Match 7</span>
+              <span class="px-1.5 py-0.5 bg-[#00ff66] text-black text-[9px] sm:text-[10px] font-extrabold uppercase">Main • Match 7</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Giovanni Annania</strong><br><span class="text-neutral-400 text-[9px]">Urban Arena</span></div>
                 <div><strong class="text-white font-semibold">Roman Bondariuk</strong><br><span class="text-neutral-400 text-[9px]">Pride Gym</span></div>
@@ -301,25 +357,25 @@
     </section>
 
     <!-- SEZIONE K-1 -->
-    <section id="section-k1" class="pt-4 match-category-section">
+    <section id="section-k1" class="pt-6 match-category-section reveal-item">
       <div class="flex items-center gap-2 mb-2">
-        <span class="inline-block w-1.5 h-6 bg-k1color"></span>
+        <span class="inline-block w-1.5 h-6 bg-neutral-400"></span>
         <h2 class="text-white font-extrabold text-xl sm:text-2xl tracking-tight">K-1</h2>
         <span class="text-neutral-400 text-xs sm:text-sm font-light">Galleries &amp; Videos</span>
       </div>
-      <div class="section-divider w-full mb-4" style="background: linear-gradient(90deg, transparent, #ff3333, transparent);"></div>
+      <div class="section-divider w-full mb-4"></div>
 
-      <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4" id="k1-grid">
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" id="k1-grid">
 
         <!-- MATCH 8 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5525492/pexels-photo-5525492.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/5485445/pexels-photo-5485445.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-k1color/10 text-k1color text-[9px] sm:text-[10px] font-bold uppercase border border-k1color/30">Match 8 • K-1</span>
+              <span class="px-1.5 py-0.5 bg-neutral-800 text-white text-[9px] sm:text-[10px] font-bold uppercase border border-neutral-700">Match 8 • K-1</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Andrea Pignatelli</strong><br><span class="text-neutral-400 text-[9px]">King Fit</span></div>
                 <div><strong class="text-white font-semibold">Monaco Gosue</strong><br><span class="text-neutral-400 text-[9px]">Europ Center</span></div>
@@ -334,14 +390,14 @@
         </div>
 
         <!-- MATCH 9 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/5424764/pexels-photo-5424764.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/5424666/pexels-photo-5424666.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-k1color/10 text-k1color text-[9px] sm:text-[10px] font-bold uppercase border border-k1color/30">Match 9 • K-1</span>
+              <span class="px-1.5 py-0.5 bg-neutral-800 text-white text-[9px] sm:text-[10px] font-bold uppercase border border-neutral-700">Match 9 • K-1</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Matteo Perini</strong><br><span class="text-neutral-400 text-[9px]">Leoni San Marco</span></div>
                 <div><strong class="text-white font-semibold">Gurami Berikishvili</strong><br><span class="text-neutral-400 text-[9px]">Esma Verona</span></div>
@@ -356,14 +412,14 @@
         </div>
 
         <!-- MATCH 10 -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/17892107/pexels-photo-17892107.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/35342445/pexels-photo-35342445.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-k1color/10 text-k1color text-[9px] sm:text-[10px] font-bold uppercase border border-k1color/30">Match 10 • K-1</span>
+              <span class="px-1.5 py-0.5 bg-neutral-800 text-white text-[9px] sm:text-[10px] font-bold uppercase border border-neutral-700">Match 10 • K-1</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Massimo Chiril</strong><br><span class="text-neutral-400 text-[9px]">Fight Accademy</span></div>
                 <div><strong class="text-white font-semibold">Riccardo Di Pasquale</strong><br><span class="text-neutral-400 text-[9px]">Codice mma</span></div>
@@ -378,14 +434,14 @@
         </div>
 
         <!-- MATCH 11 (MAIN EVENT) -->
-        <div class="match-card flex flex-col justify-between gap-2 p-2 sm:p-3">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
             <div class="photo-stack hidden sm:block">
               <img src="https://images.pexels.com/photos/11045336/pexels-photo-11045336.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
               <img src="https://images.pexels.com/photos/38120873/pexels-photo-38120873.jpeg?auto=compress&cs=tinysrgb&h=150&w=150" alt="" />
             </div>
             <div class="w-full">
-              <span class="px-1.5 py-0.5 bg-k1color text-white text-[9px] sm:text-[10px] font-extrabold uppercase">K-1 Main • Match 11</span>
+              <span class="px-1.5 py-0.5 bg-[#00ff66] text-black text-[9px] sm:text-[10px] font-extrabold uppercase">K-1 Main • Match 11</span>
               <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
                 <div><strong class="text-white font-semibold">Nicola Varagnolo</strong><br><span class="text-neutral-400 text-[9px]">Leoni San Marco</span></div>
                 <div><strong class="text-white font-semibold">Andrea Zorzi</strong><br><span class="text-neutral-400 text-[9px]">Team Iron Dojo</span></div>
@@ -405,33 +461,33 @@
   </main>
 
   <!-- ======================================================= -->
-  <!-- POP-UP MODALS CON PREZZI IN CHIARO                         -->
+  <!-- POP-UP MODALS CON I PREZZI (€40 / €60)                  -->
   <!-- ======================================================= -->
 
   <!-- POP-UP MATCH 1 -->
-  <div id="album-mma-1" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-mma-1" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-1')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[10px] font-bold uppercase border border-cinthec/30">MMA</span>
+        <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">MMA</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Marina Chiarello vs Enza Mallone</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Marina%20Chiarello%20vs%20Enza%20Mallone" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Marina%20Chiarello%20vs%20Enza%20Mallone" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Marina%20Chiarello%20vs%20Enza%20Mallone" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Marina%20Chiarello%20vs%20Enza%20Mallone" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Marina%20Chiarello%20vs%20Enza%20Mallone" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Marina%20Chiarello%20vs%20Enza%20Mallone" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -444,29 +500,29 @@
   </div>
 
   <!-- POP-UP MATCH 2 -->
-  <div id="album-mma-2" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-mma-2" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-2')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[10px] font-bold uppercase border border-cinthec/30">MMA</span>
+        <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">MMA</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Andrea Biffi vs Christian Zechetto</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Andrea%20Biffi%20vs%20Christian%20Zechetto" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Andrea%20Biffi%20vs%20Christian%20Zechetto" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Andrea%20Biffi%20vs%20Christian%20Zechetto" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Andrea%20Biffi%20vs%20Christian%20Zechetto" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Andrea%20Biffi%20vs%20Christian%20Zechetto" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Andrea%20Biffi%20vs%20Christian%20Zechetto" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -479,29 +535,29 @@
   </div>
 
   <!-- POP-UP MATCH 3 -->
-  <div id="album-mma-3" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-mma-3" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-3')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[10px] font-bold uppercase border border-cinthec/30">MMA</span>
+        <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">MMA</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Maikol Garcia vs Luca Finotti</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Maikol%20Garcia%20vs%20Luca%20Finotti" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Maikol%20Garcia%20vs%20Luca%20Finotti" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Maikol%20Garcia%20vs%20Luca%20Finotti" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Maikol%20Garcia%20vs%20Luca%20Finotti" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Maikol%20Garcia%20vs%20Luca%20Finotti" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Maikol%20Garcia%20vs%20Luca%20Finotti" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -514,29 +570,29 @@
   </div>
 
   <!-- POP-UP MATCH 4 -->
-  <div id="album-mma-4" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-mma-4" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-4')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-cinthec/10 text-cinthec text-[10px] font-bold uppercase border border-cinthec/30">MMA</span>
+        <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">MMA</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Lorenzo Vasini vs Andrea Piccinini</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Lorenzo%20Vasini%20vs%20Andrea%20Piccinini" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Lorenzo%20Vasini%20vs%20Andrea%20Piccinini" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Lorenzo%20Vasini%20vs%20Andrea%20Piccinini" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Lorenzo%20Vasini%20vs%20Andrea%20Piccinini" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Lorenzo%20Vasini%20vs%20Andrea%20Piccinini" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Lorenzo%20Vasini%20vs%20Andrea%20Piccinini" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -549,29 +605,29 @@
   </div>
 
   <!-- POP-UP MATCH 5 -->
-  <div id="album-mma-5" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-mma-5" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-5')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-cinthec text-black text-[10px] font-extrabold uppercase">Main Card</span>
+        <span class="px-2 py-0.5 bg-white text-black text-[10px] font-extrabold uppercase">Main Card</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Mattia Marostegan vs Riccardo Muso</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Mattia%20Marostegan%20vs%20Riccardo%20Muso" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Mattia%20Marostegan%20vs%20Riccardo%20Muso" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Mattia%20Marostegan%20vs%20Riccardo%20Muso" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Mattia%20Marostegan%20vs%20Riccardo%20Muso" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Mattia%20Marostegan%20vs%20Riccardo%20Muso" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Mattia%20Marostegan%20vs%20Riccardo%20Muso" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -584,29 +640,29 @@
   </div>
 
   <!-- POP-UP MATCH 6 -->
-  <div id="album-mma-6" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-mma-6" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-6')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-cinthec text-black text-[10px] font-extrabold uppercase">Main Card</span>
+        <span class="px-2 py-0.5 bg-white text-black text-[10px] font-extrabold uppercase">Main Card</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Maura Brunello vs Giulia Garofalo</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Maura%20Brunello%20vs%20Giulia%20Garofalo" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Maura%20Brunello%20vs%20Giulia%20Garofalo" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Maura%20Brunello%20vs%20Giulia%20Garofalo" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Maura%20Brunello%20vs%20Giulia%20Garofalo" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Maura%20Brunello%20vs%20Giulia%20Garofalo" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Maura%20Brunello%20vs%20Giulia%20Garofalo" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -619,29 +675,29 @@
   </div>
 
   <!-- POP-UP MATCH 7 -->
-  <div id="album-mma-7" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-mma-7" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-7')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-cinthec text-black text-[10px] font-extrabold uppercase">Main Card</span>
+        <span class="px-2 py-0.5 bg-white text-black text-[10px] font-extrabold uppercase">Main Card</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Giovanni Annania vs Roman Bondariuk</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Giovanni%20Annania%20vs%20Roman%20Bondariuk" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20MMA%3A%20Giovanni%20Annania%20vs%20Roman%20Bondariuk" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Giovanni%20Annania%20vs%20Roman%20Bondariuk" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20MMA%3A%20Giovanni%20Annania%20vs%20Roman%20Bondariuk" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Giovanni%20Annania%20vs%20Roman%20Bondariuk" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20MMA%3A%20Giovanni%20Annania%20vs%20Roman%20Bondariuk" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -654,29 +710,29 @@
   </div>
 
   <!-- POP-UP MATCH 8 (K-1 1) -->
-  <div id="album-k1-1" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-k1-1" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-k1-1')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-k1color/10 text-k1color text-[10px] font-bold uppercase border border-k1color/30">K-1</span>
+        <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">K-1</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Andrea Pignatelli vs Monaco Gosue</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%3A%20Andrea%20Pignatelli%20vs%20Monaco%20Gosue" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%3A%20Andrea%20Pignatelli%20vs%20Monaco%20Gosue" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%3A%20Andrea%20Pignatelli%20vs%20Monaco%20Gosue" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%3A%20Andrea%20Pignatelli%20vs%20Monaco%20Gosue" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%3A%20Andrea%20Pignatelli%20vs%20Monaco%20Gosue" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%3A%20Andrea%20Pignatelli%20vs%20Monaco%20Gosue" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -689,29 +745,29 @@
   </div>
 
   <!-- POP-UP MATCH 9 (K-1 2) -->
-  <div id="album-k1-2" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-k1-2" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-k1-2')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-k1color/10 text-k1color text-[10px] font-bold uppercase border border-k1color/30">K-1</span>
+        <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">K-1</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Matteo Perini vs Gurami Berikishvili</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%3A%20Matteo%20Perini%20vs%20Gurami%20Berikishvili" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%3A%20Matteo%20Perini%20vs%20Gurami%20Berikishvili" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%3A%20Matteo%20Perini%20vs%20Gurami%20Berikishvili" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%3A%20Matteo%20Perini%20vs%20Gurami%20Berikishvili" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%3A%20Matteo%20Perini%20vs%20Gurami%20Berikishvili" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%3A%20Matteo%20Perini%20vs%20Gurami%20Berikishvili" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -724,29 +780,29 @@
   </div>
 
   <!-- POP-UP MATCH 10 (K-1 3) -->
-  <div id="album-k1-3" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-k1-3" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-k1-3')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-k1color/10 text-k1color text-[10px] font-bold uppercase border border-k1color/30">K-1</span>
+        <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">K-1</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Massimo Chiril vs Riccardo Di Pasquale</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%3A%20Massimo%20Chiril%20vs%20Riccardo%20Di%20Pasquale" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%3A%20Massimo%20Chiril%20vs%20Riccardo%20Di%20Pasquale" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%3A%20Massimo%20Chiril%20vs%20Riccardo%20Di%20Pasquale" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%3A%20Massimo%20Chiril%20vs%20Riccardo%20Di%20Pasquale" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%3A%20Massimo%20Chiril%20vs%20Riccardo%20Di%20Pasquale" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%3A%20Massimo%20Chiril%20vs%20Riccardo%20Di%20Pasquale" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -759,29 +815,29 @@
   </div>
 
   <!-- POP-UP MATCH 11 (K-1 Main Event) -->
-  <div id="album-k1-4" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="album-k1-4" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
       <button onclick="closeModal('album-k1-4')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
       <div class="mb-3 pr-8">
-        <span class="px-2 py-0.5 bg-k1color text-white text-[10px] font-extrabold uppercase">K-1 Main Event</span>
+        <span class="px-2 py-0.5 bg-white text-black text-[10px] font-extrabold uppercase">K-1 Main Event</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Nicola Varagnolo vs Andrea Zorzi</h3>
       </div>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%20Main%20Event%3A%20Nicola%20Varagnolo%20vs%20Andrea%20Zorzi" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20l'intero%20album%20foto%20del%20match%20K-1%20Main%20Event%3A%20Nicola%20Varagnolo%20vs%20Andrea%20Zorzi" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>📁 Album Intero Foto</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">17€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%20Main%20Event%3A%20Nicola%20Varagnolo%20vs%20Andrea%20Zorzi" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#00ff66] text-black hover:bg-[#00cc52] text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20tutte%20le%20clip%20video%20del%20match%20K-1%20Main%20Event%3A%20Nicola%20Varagnolo%20vs%20Andrea%20Zorzi" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex flex-col items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
             <span>🎬 Tutte le Clip Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">20€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/40 px-2.5 py-0.5 text-white">40€</span>
           </a>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%20Main%20Event%3A%20Nicola%20Varagnolo%20vs%20Andrea%20Zorzi" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-sky-400 text-black hover:bg-sky-300 text-center shadow-sm flex flex-col items-center justify-center">
+          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20acquistare%20il%20pacchetto%20completo%20Foto%20+%20Video%20del%20match%20K-1%20Main%20Event%3A%20Nicola%20Varagnolo%20vs%20Andrea%20Zorzi" target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-white text-black hover:bg-neutral-200 text-center shadow-sm flex flex-col items-center justify-center border border-white transition-all hover:scale-[1.02]">
             <span>🔥 Pacchetto Foto + Video</span>
-            <span class="text-[11px] font-black mt-0.5 bg-black/20 px-2 py-0.5 rounded">28€</span>
+            <span class="text-[12px] font-black mt-0.5 bg-black/20 px-2.5 py-0.5 text-black">60€</span>
           </a>
         </div>
       </div>
@@ -794,18 +850,18 @@
   </div>
 
   <!-- ===== LIGHTBOX MODAL ===== -->
-  <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3">
+  <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
     <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white bg-neutral-900 hover:bg-neutral-800 p-2.5 transition-colors z-50 shadow-lg">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
     <div class="max-w-4xl w-full flex flex-col items-center z-50">
       <div class="relative max-h-[65vh] overflow-hidden border-2 border-white/20 bg-neutral-900 shadow-2xl flex items-center justify-center">
-        <img id="lightbox-img" src="" alt="Anteprima ingrandita" class="max-h-[60vh] object-contain w-full" />
+        <img id="lightbox-img" src="" alt="Anteprima ingrandita" class="max-h-[60vh] object-contain w-full select-none pointer-events-none" />
         <div class="watermark"><span class="text-lg">CintheC Logo</span></div>
       </div>
       <p id="lightbox-caption" class="text-white font-extrabold text-sm sm:text-base mt-2 text-center drop-shadow"></p>
       <a id="lightbox-whatsapp" href="#" target="_blank" rel="noopener"
-         class="mt-3 font-bold text-xs sm:text-sm px-5 py-2.5 inline-flex items-center gap-2 shadow-xl bg-cinthec text-black hover:bg-emerald-400 transition-all rounded-full">
+         class="mt-3 font-bold text-xs sm:text-sm px-5 py-2.5 inline-flex items-center gap-2 shadow-xl bg-white text-black hover:bg-neutral-200 transition-all rounded-full hover:scale-105">
         <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/></svg>
         Richiedi Foto — 5€
       </a>
@@ -820,17 +876,104 @@
         <span class="text-neutral-400 text-xs font-medium ml-2">CintheC Store — Tutti i diritti riservati</span>
       </div>
       <div class="flex items-center gap-3 text-[11px] text-neutral-400">
-        <a href="privacy.html" class="hover:text-cinthec transition-colors">Privacy</a>
+        <a href="privacy.html" class="hover:text-white transition-colors">Privacy</a>
         <span>•</span>
-        <a href="cookie.html" class="hover:text-cinthec transition-colors">Cookie</a>
+        <a href="cookie.html" class="hover:text-white transition-colors">Cookie</a>
         <span>•</span>
-        <a href="note-legali.html" class="hover:text-cinthec transition-colors">Note Legali</a>
+        <a href="note-legali.html" class="hover:text-white transition-colors">Note Legali</a>
       </div>
     </div>
   </footer>
 
   <!-- ===== SCRIPT & FIREBASE LOGIC ===== -->
   <script>
+    document.addEventListener('contextmenu', function(e) {
+      if (e.target.tagName === 'IMG') {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('dragstart', function(e) {
+      if (e.target.tagName === 'IMG') {
+        e.preventDefault();
+      }
+    });
+
+    // Sfondo Dinamico Canvas: Solo Brillantini / Particelle Luminose
+    const canvas = document.getElementById('cyberCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+
+    function resizeCanvas() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Creazione delle particelle (brillantini)
+    const particles = [];
+    const numParticles = 45;
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.8 + 0.6,
+        speedY: (Math.random() * 0.5 + 0.2) * -1,
+        speedX: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.7 + 0.2,
+        pulse: Math.random() * 0.02 + 0.01
+      });
+    }
+
+    function drawBackgroundFX() {
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach(p => {
+        p.y += p.speedY;
+        p.x += p.speedX;
+        p.alpha += Math.sin(Date.now() * p.pulse) * 0.015;
+
+        if (p.y < 0) {
+          p.y = height;
+          p.x = Math.random() * width;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 255, 102, ${Math.max(0.1, Math.min(0.9, p.alpha))})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#00ff66';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      requestAnimationFrame(drawBackgroundFX);
+    }
+    drawBackgroundFX();
+
+    // Scroll Reveal con Intersection Observer
+    document.addEventListener("DOMContentLoaded", function() {
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+      };
+
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll('.reveal-item').forEach(el => {
+        observer.observe(el);
+      });
+    });
+
     const firebaseConfig = {
       apiKey: "AIzaSyDsa70phHFPOsQgwKdPd2IuBP-z5mP4Wyc",
       authDomain: "foto-loggate-cinthec.firebaseapp.com",
@@ -843,7 +986,6 @@
     firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
 
-    // Funzione filtro per i bottoni MMA / K-1 / Tutti
     function filterCategory(category) {
       const sectionMma = document.getElementById('section-mma');
       const sectionK1 = document.getElementById('section-k1');
@@ -852,7 +994,7 @@
       const btnMma = document.getElementById('btn-mma');
       const btnK1 = document.getElementById('btn-k1');
 
-      const inactiveStyle = "flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center";
+      const inactiveStyle = "flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]";
 
       btnAll.className = inactiveStyle;
       btnMma.className = inactiveStyle;
@@ -861,15 +1003,15 @@
       if (category === 'all') {
         sectionMma.style.display = 'block';
         sectionK1.style.display = 'block';
-        btnAll.className = "flex-1 bg-cinthec text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center";
+        btnAll.className = "flex-1 bg-white text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]";
       } else if (category === 'mma') {
         sectionMma.style.display = 'block';
         sectionK1.style.display = 'none';
-        btnMma.className = "flex-1 bg-cinthec text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center";
+        btnMma.className = "flex-1 bg-white text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]";
       } else if (category === 'k1') {
         sectionMma.style.display = 'none';
         sectionK1.style.display = 'block';
-        btnK1.className = "flex-1 bg-k1color text-white font-extrabold text-xs sm:text-base py-3 px-4 transition-all shadow-xl uppercase tracking-wider text-center";
+        btnK1.className = "flex-1 bg-white text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]";
       }
     }
 
@@ -878,7 +1020,7 @@
       if (!container) return;
       if (container.dataset.loaded === "true") return;
 
-      container.innerHTML = '<p class="text-neutral-400 text-xs col-span-full text-center py-6">Caricamento foto in corso...</p>';
+      container.innerHTML = '<p class="text-neutral-400 text-xs col-span-full text-center py-6 animate-pulse">Caricamento foto in corso...</p>';
 
       try {
         const listRef = storage.ref().child(folderName);
@@ -897,15 +1039,15 @@
           const waUrl = `https://wa.me/393277179868?text=${encodeURIComponent(`Ciao! Vorrei acquistare questa foto (${folderName} / ${fileName}) al prezzo di 5€:${url}`)}`;
 
           const card = document.createElement('div');
-          card.className = "group relative aspect-[4/3] overflow-hidden cursor-pointer bg-black border border-neutral-800 shadow-md";
+          card.className = "group relative aspect-[4/3] overflow-hidden cursor-pointer bg-black border border-neutral-800 shadow-md transition-all duration-300 hover:border-neutral-500";
           card.onclick = () => openLightbox(url, `${folderName} / ${fileName}`);
           
           card.innerHTML = `
-            <img src="${url}" alt="${fileName}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+            <img src="${url}" alt="${fileName}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none" loading="lazy" />
             <div class="watermark"><span>CintheC</span></div>
-            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[1px]">
+            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
               <a href="${waUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()"
-                 class="bg-[#25D366] hover:bg-[#1DA851] text-white font-extrabold text-xs py-2 px-4 rounded-full flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
+                 class="bg-white hover:bg-neutral-200 text-black font-extrabold text-xs py-2 px-4 rounded-full flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.8)] hover:scale-105">
                 <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
                   <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/>
                 </svg>
@@ -946,16 +1088,19 @@
       const lightboxWhatsapp = document.getElementById('lightbox-whatsapp');
 
       lightboxImg.src = imgSrc;
-      lightboxCaption.textContent = captionText;
+      lightboxCaption.textContent = "Anteprima foto in bassa qualità";
       
       const waText = encodeURIComponent(`Ciao! Vorrei acquistare questa specifica foto (${captionText}) al prezzo di 5€: ${imgSrc}`);
       lightboxWhatsapp.href = `https://wa.me/393277179868?text=${waText}`;
 
+      lightbox.classList.add('flex');
       lightbox.classList.remove('hidden');
     }
 
     function closeLightbox() {
-      document.getElementById('lightbox').classList.add('hidden');
+      const lightbox = document.getElementById('lightbox');
+      lightbox.classList.add('hidden');
+      lightbox.classList.remove('flex');
     }
   </script>
 
