@@ -7,7 +7,7 @@ body {
   margin: 0;
 }
 
-/* Canvas Sfondo Dinamico: Griglia + Brillantini sopra i fulmini */
+/* Canvas Sfondo Dinamico: Brillantini sotto a tutti gli elementi */
 #cyberCanvas {
   position: fixed;
   top: 0;
@@ -19,7 +19,7 @@ body {
   opacity: 0.65;
 }
 
-header, main, footer {
+header, main, section, footer {
   position: relative;
   z-index: 10;
 }
@@ -32,6 +32,7 @@ header, main, footer {
   z-index: 100;
 }
 
+/* Watermark protettivo sopra le immagini */
 .watermark {
   position: absolute;
   inset: 0;
@@ -53,17 +54,75 @@ header, main, footer {
   white-space: nowrap;
 }
 
-* {
-  border-radius: 0px !important;
+/* =================================================== */
+/* CAROSELLO AUTOMATICO FLUIDO CON ANIMAZIONE CSS      */
+/* =================================================== */
+
+.carousel-wrapper {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  z-index: 20;
 }
+
+.carousel-track {
+  display: flex;
+  gap: 1.25rem;
+  width: max-content;
+  animation: continuousScroll 25s linear infinite; /* Cambia 25s per regolare la velocità */
+}
+
+/* Mette in pausa lo scorrimento quando si passa il mouse o si tocca la foto */
+.carousel-wrapper:hover .carousel-track,
+.carousel-wrapper:active .carousel-track {
+  animation-play-state: paused;
+}
+
+/* Animazione fluida continua da Destra verso Sinistra */
+@keyframes continuousScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Card Carosello: Effetto 3D elegante e FISICAMENTE OPACO per coprire le particelle sotto */
+.carousel-item {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 25;
+  isolation: isolate;
+  background-color: #121212 !important;
+  border-radius: 0.85rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85), 0 0 10px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.carousel-item:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 22px 40px rgba(0, 0, 0, 0.95), 0 0 15px rgba(255, 255, 255, 0.15);
+}
+
+.carousel-item img {
+  background-color: #121212;
+  display: block;
+}
+
+/* =================================================== */
+/* CARD DEI MATCH E PULSANTI                           */
+/* =================================================== */
 
 .match-card {
   background-color: #1a1a1a;
-  /* Contorno verde sempre visibile e sfumatura luminosa (glow) fissa */
   border: 1px solid #00ff66;
   box-shadow: 0 4px 0px 0px #00993d, 0 8px 20px rgba(0,255,102,0.20);
   transition: all 0.15s ease;
   padding: 12px !important;
+  position: relative;
+  z-index: 10;
 }
 
 .match-card:hover {
@@ -138,7 +197,7 @@ header, main, footer {
 .photo-stack img:nth-child(2) { transform: rotate(8deg) translateX(4px); z-index: 2; }
 
 /* =================================================== */
-/* STILE PROFESSIONALE PULITO PER I POP-UP (MODAL)    */
+/* STILE POP-UP (MODAL)                                */
 /* =================================================== */
 
 .album-modal .bg-\[\#1a1a1a\] {
@@ -147,7 +206,7 @@ header, main, footer {
   box-shadow: 0 0 30px rgba(0,255,102,0.15), 0 20px 40px rgba(0,0,0,0.9);
 }
 
-/* Bottoni standard dentro i pop-up (Album Foto / Clip Video) */
+/* Bottoni standard dentro i pop-up */
 .album-modal a.bg-\[\#262626\] {
   background-color: #262626 !important;
   color: #ffffff !important;
@@ -161,7 +220,7 @@ header, main, footer {
   border-color: #737373 !important;
 }
 
-/* Bottone in evidenza per il Pacchetto Foto + Video */
+/* Bottone Pacchetto Foto + Video */
 .album-modal a.bg-white {
   background-color: #f5f5f5 !important;
   color: #000000 !important;
@@ -174,9 +233,20 @@ header, main, footer {
   background-color: #ffffff !important;
 }
 
-/* Badge dei prezzi dentro i bottoni dei pop-up */
+/* Badge dei prezzi */
 .album-modal span.bg-black\/40,
 .album-modal span.bg-black\/20 {
   background-color: rgba(0, 0, 0, 0.4) !important;
   color: #e5e5e5 !important;
+}
+
+/* Effetto Scroll Reveal */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-item.active {
+  opacity: 1;
+  transform: translateY(0);
 }

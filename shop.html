@@ -6,10 +6,10 @@
   <title>CintheC Photo & Video Store - Official Galleries</title>
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Collegamento al foglio di stile esterno (shop.css) -->
+  <!-- Foglio di stile esterno -->
   <link rel="stylesheet" href="shop.css">
 
-  <!-- Firebase App (Core) e Firebase Storage SDK (Compat) -->
+  <!-- Firebase App & Storage SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 
@@ -30,48 +30,15 @@
       },
     };
   </script>
-  <style>
-    /* Canvas Sfondo Dinamico: Solo Brillantini/Particelle Luminose */
-    #cyberCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0.85;
-    }
-
-    /* Assicuriamo che header, main, footer e modal stiano sopra il canvas */
-    header, main, footer {
-      position: relative;
-      z-index: 10;
-    }
-    .album-modal { z-index: 50; }
-    #lightbox { z-index: 100; }
-
-    /* Effetto Scroll Reveal */
-    .reveal-item {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .reveal-item.active {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  </style>
 </head>
 <body class="font-sans min-h-screen antialiased text-white">
 
-  <!-- CANVAS SFONDO DINAMICO (SOLO PUNTINI VERDI LUMINOSI) -->
+  <!-- SFONDO PARTICELLE VERDI -->
   <canvas id="cyberCanvas"></canvas>
 
-  <!-- ===== HEADER STICKY (LOGO E SCRITTE A SINISTRA, HOME A DESTRA) ===== -->
+  <!-- ===== HEADER STICKY ===== -->
   <header class="sticky top-0 bg-[#161616]/70 backdrop-blur-md border-b border-neutral-800/60 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-row items-center justify-between gap-2">
-      <!-- LOGO + TITOLO A SINISTRA SENZA MARGINI NEGATIVI -->
       <div class="flex items-center gap-3">
         <a href="index.html" class="flex items-center shrink-0 transition-transform duration-300 hover:scale-105">
           <img src="logoc.png" alt="CintheC Logo" class="h-12 sm:h-20 w-auto object-contain scale-110 sm:scale-125 origin-left" />
@@ -86,7 +53,6 @@
         </div>
       </div>
       
-      <!-- TASTO HOME A DESTRA -->
       <div class="flex items-center">
         <a href="index.html" class="inline-flex items-center gap-2 bg-neutral-900/80 hover:bg-neutral-800 text-white border-2 border-neutral-700 hover:border-white font-extrabold text-xs sm:text-sm px-3.5 sm:px-4 py-2.5 transition-all duration-300 shadow-lg hover:scale-105 shrink-0">
           <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -139,34 +105,21 @@
     </div>
   </section>
 
-  <!-- ===== SEZIONE IN EVIDENZA: BUNDLE SPECIALE FOTO + VIDEO ===== -->
+  <!-- ===== CAROSELLO FOTO IN EVIDENZA ===== -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 reveal-item">
-    <div data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15" class="bg-gradient-to-br from-neutral-900 via-[#1a1a1a] to-neutral-900 border border-[#00ff66]/60 hover:border-white transition-all duration-500 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden group">
-      <div class="absolute -right-20 -bottom-20 w-72 h-72 bg-[#00ff66]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-[#00ff66]/20 transition-all duration-700"></div>
-      
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center relative z-10">
-        <div class="lg:col-span-2 space-y-3">
-          <span class="inline-flex items-center gap-1.5 bg-[#00ff66] text-black text-[10px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-md shadow-lg animate-pulse">
-            🔥 Offerta Match Day in Evidenza
-          </span>
-          <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
-            Pacchetto Totale <span class="text-neutral-400">Foto + Video Ufficiali</span>
-          </h2>
-          <p class="text-neutral-400 text-xs sm:text-sm leading-relaxed">
-            Non perdere nessun dettaglio del tuo incontro. Assicura alla tua performance il reportage fotografico completo in HD e tutte le clip video del match per i tuoi canali social.
-          </p>
-        </div>
-
-        <div class="flex flex-col sm:flex-row lg:flex-col items-center justify-between gap-4 bg-black/60 border border-neutral-800 p-4 rounded-xl backdrop-blur-sm">
-          <div class="text-center sm:text-left lg:text-center">
-            <span class="text-neutral-500 line-through text-xs font-semibold">€80,00</span>
-            <div class="text-2xl sm:text-3xl font-black text-white">€60,00</div>
-          </div>
-          <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20bloccare%20il%20pacchetto%20in%20offerta%20speciale%20Foto%20+%20Video%20in%20evidenza." target="_blank" rel="noopener" class="w-full bg-[#00ff66] hover:bg-[#00cc52] text-black font-extrabold text-xs sm:text-sm py-3 px-6 rounded-lg transition-all duration-300 shadow-xl hover:scale-105 active:scale-95 text-center uppercase tracking-wider">
-            Blocca Offerta su WhatsApp
-          </a>
-        </div>
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <span class="text-[#00ff66] text-[10px] font-black uppercase tracking-widest">Gallery Preview</span>
+        <h2 class="text-xl sm:text-2xl font-black text-white">Scatti in Primo Piano</h2>
       </div>
+      <span class="text-neutral-400 text-xs font-bold hidden sm:inline flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-[#00ff66] animate-pulse"></span> Scorrimento Automatico
+      </span>
+    </div>
+
+    <!-- Contenitore Carosello con Traccia CSS -->
+    <div id="auto-carousel" class="carousel-wrapper">
+      <p class="text-neutral-400 text-xs col-span-full py-6 animate-pulse text-center w-full">Caricamento anteprime da Firebase...</p>
     </div>
   </section>
 
@@ -198,7 +151,6 @@
       <div class="section-divider w-full mb-4"></div>
 
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" id="mma-grid">
-
         <!-- MATCH 1 -->
         <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
@@ -352,7 +304,6 @@
             </button>
           </div>
         </div>
-
       </div>
     </section>
 
@@ -366,7 +317,6 @@
       <div class="section-divider w-full mb-4"></div>
 
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" id="k1-grid">
-
         <!-- MATCH 8 -->
         <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
@@ -454,7 +404,6 @@
             </button>
           </div>
         </div>
-
       </div>
     </section>
 
@@ -887,6 +836,7 @@
 
   <!-- ===== SCRIPT & FIREBASE LOGIC ===== -->
   <script>
+    // ===== BLOCCHI DI SICUREZZA (TASTO DESTRO, DRAG & SCORCIATOIE) =====
     document.addEventListener('contextmenu', function(e) {
       if (e.target.tagName === 'IMG') {
         e.preventDefault();
@@ -899,7 +849,18 @@
       }
     });
 
-    // Sfondo Dinamico Canvas: Solo Brillantini / Particelle Luminose
+    document.addEventListener('keydown', function(e) {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+        (e.ctrlKey && (e.key === 'u' || e.key === 's'))
+      ) {
+        e.preventDefault();
+      }
+    });
+    // ===================================================================
+
+    // 1. PARTICELLE SFONDO (CANVAS)
     const canvas = document.getElementById('cyberCanvas');
     const ctx = canvas.getContext('2d');
     let width, height;
@@ -911,10 +872,8 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Creazione delle particelle (brillantini)
     const particles = [];
-    const numParticles = 45;
-    for (let i = 0; i < numParticles; i++) {
+    for (let i = 0; i < 45; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -952,28 +911,7 @@
     }
     drawBackgroundFX();
 
-    // Scroll Reveal con Intersection Observer
-    document.addEventListener("DOMContentLoaded", function() {
-      const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-      };
-
-      const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('active');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, observerOptions);
-
-      document.querySelectorAll('.reveal-item').forEach(el => {
-        observer.observe(el);
-      });
-    });
-
+    // 2. CONFIGURAZIONE FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyDsa70phHFPOsQgwKdPd2IuBP-z5mP4Wyc",
       authDomain: "foto-loggate-cinthec.firebaseapp.com",
@@ -985,6 +923,51 @@
 
     firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
+
+    // CAROSELLO CON SCORRIMENTO ANIMATO NATIVO CSS
+    async function loadAutoCarousel() {
+      const container = document.getElementById('auto-carousel');
+      if (!container) return;
+
+      try {
+        const listRef = storage.ref().child('carosello-preview');
+        const res = await listRef.listAll();
+
+        if (res.items.length === 0) {
+          container.innerHTML = '<p class="text-neutral-500 text-xs text-center py-6 w-full">Nessuna foto trovata nella cartella carosello-preview su Firebase.</p>';
+          return;
+        }
+
+        const track = document.createElement('div');
+        track.className = 'carousel-track';
+
+        for (const itemRef of res.items) {
+          const url = await itemRef.getDownloadURL();
+
+          const item = document.createElement('div');
+          item.className = "carousel-item w-[280px] sm:w-[360px] aspect-[16/10] overflow-hidden relative border border-white/10 bg-[#121212] group";
+          item.innerHTML = `
+            <img src="${url}" class="w-full h-full object-cover bg-[#121212] select-none pointer-events-none group-hover:scale-105 transition-transform duration-500" />
+            <div class="watermark"><span>CintheC</span></div>
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/70 to-transparent p-3 flex items-center justify-between z-10">
+              <span class="text-xs font-black text-white uppercase tracking-wider">Preview</span>
+              <span class="text-[10px] bg-neutral-800 text-neutral-300 border border-neutral-700 font-semibold px-2 py-0.5 rounded">HD</span>
+            </div>
+          `;
+          track.appendChild(item);
+        }
+
+        // Duplichiamo gli elementi per consentire l'effetto loop infinito
+        track.innerHTML += track.innerHTML;
+
+        container.innerHTML = '';
+        container.appendChild(track);
+
+      } catch (error) {
+        console.error("Errore caricamento carosello:", error);
+        container.innerHTML = '<p class="text-red-400 text-xs text-center py-6 w-full">Errore di connessione a Firebase Storage.</p>';
+      }
+    }
 
     function filterCategory(category) {
       const sectionMma = document.getElementById('section-mma');
@@ -1102,7 +1085,18 @@
       lightbox.classList.add('hidden');
       lightbox.classList.remove('flex');
     }
-  </script>
 
+    document.addEventListener("DOMContentLoaded", function() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add('active');
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.reveal-item').forEach(el => observer.observe(el));
+
+      loadAutoCarousel();
+    });
+  </script>
 </body>
 </html>
