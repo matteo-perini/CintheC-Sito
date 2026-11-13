@@ -30,6 +30,150 @@
       },
     };
   </script>
+
+  <!-- Gallerie: scorrimento interno, foto intere e visualizzatore navigabile -->
+  <style>
+    .album-modal { z-index: 70 !important; }
+    .album-modal .album-shell {
+      width: min(100%, 1180px);
+      height: 95dvh;
+      max-height: 95dvh;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .album-modal .album-offers { flex: none; border: 1px solid #404040; background: #171717; }
+    .album-modal .album-offers > summary {
+      cursor: pointer; list-style: none; user-select: none;
+      padding: 10px 13px; color: #e5e5e5;
+      font-size: 12px; font-weight: 800;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    }
+    .album-modal .album-offers > summary::-webkit-details-marker { display: none; }
+    .album-modal .album-offers > summary::after { content: '+'; color: #00ff66; font-size: 19px; line-height: 1; }
+    .album-modal .album-offers[open] > summary::after { content: '−'; }
+    .album-modal .album-offers[open] { max-height: min(48dvh, 350px); overflow-y: auto; }
+    .album-modal .album-offers > div { margin: 0 9px 9px; }
+    .album-toolbar {
+      flex: none; display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 4px 12px; padding: 9px 2px 11px;
+      font-size: 11px; color: #a3a3a3;
+    }
+    .album-photo-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-content: start; grid-auto-rows: max-content; gap: 10px; flex: 1 1 auto;
+      min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+      scrollbar-color: #525252 #171717;
+      padding: 3px 5px 16px 2px;
+      border-top: 1px solid #303030;
+    }
+    .album-photo-card {
+      position: relative; display: block; width: 100%; aspect-ratio: 4 / 3;
+      min-height: auto; overflow: hidden; background: #090909;
+      border: 1px solid #404040; cursor: zoom-in;
+      transition: border-color 180ms, transform 180ms;
+    }
+    .album-photo-card:hover, .album-photo-card:focus-visible {
+      border-color: #00ff66; outline: 1px solid #00ff66;
+    }
+    /* Un pulsante discreto sotto ogni anteprima, senza coprire l'immagine. */
+    .album-photo-item { display: flex; flex-direction: column; min-width: 0; gap: 5px; }
+    .album-photo-request {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 32px; padding: 6px 5px; border: 1px solid #404040;
+      background: #222; color: #fff; text-align: center;
+      font-size: 10px; font-weight: 800; line-height: 1.2;
+      text-decoration: none; transition: border-color 180ms, background 180ms;
+    }
+    .album-photo-request:hover, .album-photo-request:focus-visible {
+      border-color: #00ff66; background: #303030; outline-color: #00ff66;
+    }
+    .album-photo-request[aria-disabled="true"] {
+      color: #888; pointer-events: none; opacity: .65;
+    }
+    /* Nel visualizzatore il pulsante resta sempre sotto la foto. */
+    #lightbox-whatsapp {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 34px; padding: 7px 13px; max-width: 100%;
+      border-radius: 3px; border: 1px solid #00ff66;
+      background: #171717; color: #00ff66;
+      font-size: 11px; font-weight: 800; text-decoration: none;
+      transition: background 180ms, color 180ms;
+    }
+    #lightbox-whatsapp:hover, #lightbox-whatsapp:focus-visible { background: #00ff66; color: #050505; }
+    .album-photo-card img {
+      display: block; width: 100%; height: 100%; object-fit: contain;
+      user-select: none; pointer-events: none;
+    }
+    .album-photo-card .watermark { pointer-events: none; }
+    .album-photo-card .album-photo-index {
+      position: absolute; bottom: 6px; right: 6px; z-index: 2;
+      background: rgba(0,0,0,.82); color: white; padding: 3px 6px;
+      border: 1px solid #525252; font-size: 10px; font-weight: 800;
+    }
+    .album-photo-card .album-photo-loading {
+      position: absolute; inset: 0; display: flex; justify-content: center;
+      align-items: center; color: #777; font-size: 11px; letter-spacing: .03em;
+      pointer-events: none;
+    }
+    .album-photo-card.is-loaded .album-photo-loading { display: none; }
+    .album-photo-card.is-error .album-photo-loading { color: #fca5a5; }
+    #lightbox { z-index: 110 !important; padding: 8px; }
+    .gallery-lightbox-wrap {
+      width: min(100%, 1320px); height: 100%; min-height: 0;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .gallery-lightbox-top {
+      flex: none; width: 100%; padding: 5px 3px 10px; display: flex;
+      align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .gallery-lightbox-main {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      width: 100%; flex: 1 1 auto; min-height: 0;
+    }
+    .gallery-lightbox-stage {
+      position: relative; width: 100%; height: 100%; min-height: 0;
+      overflow: hidden; display: flex; justify-content: center; align-items: center;
+      background: #0a0a0a; border: 1px solid #333;
+    }
+    #lightbox-img {
+      display: block; max-width: 100%; max-height: 100%; width: auto; height: auto;
+      object-fit: contain; user-select: none; pointer-events: none;
+    }
+    .gallery-lightbox-stage .watermark { pointer-events: none; }
+    .gallery-lightbox-arrow {
+      position: absolute; z-index: 5; top: 50%; transform: translateY(-50%);
+      width: 45px; height: 56px; display: flex; align-items: center;
+      justify-content: center; background: rgba(0,0,0,.77); color: white;
+      border: 1px solid #696969; font-size: 32px; line-height: 1;
+      transition: background 150ms, border-color 150ms;
+    }
+    .gallery-lightbox-arrow:hover, .gallery-lightbox-arrow:focus-visible {
+      background: #171717; border-color: #00ff66;
+    }
+    .gallery-lightbox-arrow[hidden] { display: none !important; }
+    .gallery-lightbox-arrow.previous { left: 4px; }
+    .gallery-lightbox-arrow.next { right: 4px; }
+    .gallery-lightbox-footer {
+      flex: none; width: 100%; display: flex; flex-direction: column;
+      align-items: center; gap: 7px; padding: 10px 0 5px;
+    }
+    @media (min-width: 700px) {
+      .album-photo-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+      .gallery-lightbox-arrow.previous { left: 15px; }
+      .gallery-lightbox-arrow.next { right: 15px; }
+    }
+    @media (min-width: 1080px) {
+      .album-photo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    @media (max-width: 639px) {
+      .album-modal { padding: 0 !important; }
+      .album-modal .album-shell { height: 100dvh; max-height: 100dvh; border-left: 0; border-right: 0; }
+      .album-photo-grid { gap: 7px; }
+      .gallery-lightbox-arrow { width: 40px; height: 50px; font-size: 27px; }
+      .gallery-lightbox-footer { padding: 7px 0 10px; }
+    }
+  </style>
 </head>
 <body class="font-sans min-h-screen antialiased text-white">
 
@@ -125,7 +269,7 @@
 
   <!-- ===== FILTRI SELEZIONE DISCIPLINA ===== -->
   <section class="max-w-7xl mx-auto px-2 sm:px-4 pt-8 reveal-item">
-    <div class="flex flex-row items-center gap-2 sm:gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 items-center gap-2 sm:gap-4">
       <button onclick="filterCategory('all')" id="btn-all" class="flex-1 bg-white text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]">
         ⚡ Tutti
       </button>
@@ -134,6 +278,9 @@
       </button>
       <button onclick="filterCategory('k1')" id="btn-k1" class="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]">
         K-1
+      </button>
+      <button onclick="filterCategory('pomeridiane')" id="btn-pomeridiane" class="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]">
+        📸 Pomeridiane
       </button>
     </div>
   </section>
@@ -407,6 +554,36 @@
       </div>
     </section>
 
+    <!-- ===== FOTO POMERIDIANE (NUOVA COLLEZIONE) ===== -->
+    <section id="section-pomeridiane" class="pt-6 match-category-section reveal-item">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="inline-block w-1.5 h-6 bg-[#00ff66]"></span>
+        <h2 class="text-white font-extrabold text-xl sm:text-2xl tracking-tight">Foto Pomeridiane</h2>
+        <span class="text-neutral-400 text-xs sm:text-sm font-light hidden sm:inline">Galleria dell'evento</span>
+      </div>
+      <div class="section-divider w-full mb-4"></div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" id="pomeridiane-grid">
+        <div data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.12" class="match-card flex flex-col justify-between gap-2">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
+            <div id="pomeridiane-preview" class="hidden sm:flex w-14 h-14 shrink-0 items-center justify-center bg-neutral-900 border border-neutral-700 text-2xl" aria-hidden="true">📸</div>
+            <div class="w-full">
+              <span class="px-1.5 py-0.5 bg-[#00ff66] text-black text-[9px] sm:text-[10px] font-extrabold uppercase">CintheC X • Evento</span>
+              <div class="mt-1 text-[11px] sm:text-xs leading-tight space-y-0.5">
+                <div><strong class="text-white font-semibold">Foto Pomeridiane</strong></div>
+                <div><span class="text-neutral-400 text-[9px]">Scopri tutti gli scatti del pomeriggio</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="w-full mt-1">
+            <button onclick="openModal('album-pomeridiane'); loadFirebasePhotos('foto-pomeridiane', 'grid-pomeridiane')" class="btn-mma text-[11px] sm:text-xs px-2 py-2 w-full text-center block">
+              📸 Foto Pomeridiane
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- ======================================================= -->
@@ -415,7 +592,7 @@
 
   <!-- POP-UP MATCH 1 -->
   <div id="album-mma-1" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-1')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -423,6 +600,8 @@
         <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">MMA</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Marina Chiarello vs Enza Mallone</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -444,13 +623,18 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-mma-1" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-mma-1" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-mma-1" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
   <!-- POP-UP MATCH 2 -->
   <div id="album-mma-2" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-2')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -458,6 +642,8 @@
         <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">MMA</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Andrea Biffi vs Christian Zechetto</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -479,13 +665,18 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-mma-2" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-mma-2" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-mma-2" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
   <!-- POP-UP MATCH 3 -->
   <div id="album-mma-3" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-3')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -493,6 +684,8 @@
         <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">MMA</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Maikol Garcia vs Luca Finotti</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -514,13 +707,18 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-mma-3" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-mma-3" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-mma-3" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
   <!-- POP-UP MATCH 4 -->
   <div id="album-mma-4" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-4')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -528,6 +726,8 @@
         <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">MMA</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Lorenzo Vasini vs Andrea Piccinini</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -549,13 +749,18 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-mma-4" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-mma-4" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-mma-4" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
   <!-- POP-UP MATCH 5 -->
   <div id="album-mma-5" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-5')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -563,6 +768,8 @@
         <span class="px-2 py-0.5 bg-white text-black text-[10px] font-extrabold uppercase">Main Card</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Mattia Marostegan vs Riccardo Muso</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -584,13 +791,18 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-mma-5" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-mma-5" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-mma-5" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
   <!-- POP-UP MATCH 6 -->
   <div id="album-mma-6" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-6')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -598,6 +810,8 @@
         <span class="px-2 py-0.5 bg-white text-black text-[10px] font-extrabold uppercase">Main Card</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Maura Brunello vs Giulia Garofalo</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -619,13 +833,18 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-mma-6" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-mma-6" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-mma-6" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
   <!-- POP-UP MATCH 7 -->
   <div id="album-mma-7" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-mma-7')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -633,6 +852,8 @@
         <span class="px-2 py-0.5 bg-white text-black text-[10px] font-extrabold uppercase">Main Card</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Giovanni Annania vs Roman Bondariuk</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -654,13 +875,18 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-mma-7" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-mma-7" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-mma-7" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
   <!-- POP-UP MATCH 8 (K-1 1) -->
   <div id="album-k1-1" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-k1-1')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -668,6 +894,8 @@
         <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">K-1</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Andrea Pignatelli vs Monaco Gosue</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -689,13 +917,18 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-k1-1" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-k1-1" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-k1-1" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
   <!-- POP-UP MATCH 9 (K-1 2) -->
   <div id="album-k1-2" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-k1-2')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -703,6 +936,8 @@
         <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">K-1</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Matteo Perini vs Gurami Berikishvili</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -724,13 +959,18 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-k1-2" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-k1-2" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-k1-2" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
   <!-- POP-UP MATCH 10 (K-1 3) -->
   <div id="album-k1-3" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-k1-3')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -738,6 +978,8 @@
         <span class="px-2 py-0.5 bg-neutral-800 text-white text-[10px] font-bold uppercase border border-neutral-700">K-1</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Massimo Chiril vs Riccardo Di Pasquale</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -759,13 +1001,18 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-k1-3" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-k1-3" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-k1-3" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
   <!-- POP-UP MATCH 11 (K-1 Main Event) -->
   <div id="album-k1-4" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <div class="bg-[#1a1a1a] border border-neutral-700 max-w-3xl w-full p-4 sm:p-6 relative max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
       <button onclick="closeModal('album-k1-4')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -773,6 +1020,8 @@
         <span class="px-2 py-0.5 bg-white text-black text-[10px] font-extrabold uppercase">K-1 Main Event</span>
         <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Nicola Varagnolo vs Andrea Zorzi</h3>
       </div>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Pacchetti e prezzi · Foto singola 5€</summary>
       <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
         <p class="text-neutral-300 text-xs font-semibold">Scegli il pacchetto completo:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -794,26 +1043,67 @@
         <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
         <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
       </div>
-      <div id="grid-k1-4" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto pr-1 pb-4"></div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-k1-4" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-k1-4" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
     </div>
   </div>
 
-  <!-- ===== LIGHTBOX MODAL ===== -->
-  <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
-    <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white bg-neutral-900 hover:bg-neutral-800 p-2.5 transition-colors z-50 shadow-lg">
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-    </button>
-    <div class="max-w-4xl w-full flex flex-col items-center z-50">
-      <div class="relative max-h-[65vh] overflow-hidden border-2 border-white/20 bg-neutral-900 shadow-2xl flex items-center justify-center">
-        <img id="lightbox-img" src="" alt="Anteprima ingrandita" class="max-h-[60vh] object-contain w-full select-none pointer-events-none" />
-        <div class="watermark"><span class="text-lg">CintheC Logo</span></div>
+  <!-- ===== POP-UP FOTO POMERIDIANE ===== -->
+  <div id="album-pomeridiane" class="album-modal fixed inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 z-50">
+    <div class="album-shell bg-[#1a1a1a] border border-neutral-700 w-full p-3 sm:p-5 relative flex flex-col shadow-2xl">
+      <button onclick="closeModal('album-pomeridiane')" class="absolute top-3 right-3 text-neutral-400 hover:text-white bg-neutral-900 p-2 transition-colors">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="mb-3 pr-8">
+        <span class="px-2 py-0.5 bg-[#00ff66] text-black text-[10px] font-extrabold uppercase">Galleria Evento</span>
+        <h3 class="text-white font-extrabold text-base sm:text-xl mt-1">Foto Pomeridiane — CintheC X</h3>
       </div>
-      <p id="lightbox-caption" class="text-white font-extrabold text-sm sm:text-base mt-2 text-center drop-shadow"></p>
-      <a id="lightbox-whatsapp" href="#" target="_blank" rel="noopener"
-         class="mt-3 font-bold text-xs sm:text-sm px-5 py-2.5 inline-flex items-center gap-2 shadow-xl bg-white text-black hover:bg-neutral-200 transition-all rounded-full hover:scale-105">
-        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/></svg>
-        Richiedi Foto — 5€
-      </a>
+      <details class="album-offers mb-2">
+        <summary aria-label="Apri opzioni di acquisto">🛒 Album completo e prezzi · Foto singola 5€</summary>
+      <div class="mb-3 bg-neutral-900 p-3 border border-neutral-700 flex flex-col gap-2">
+        <p class="text-neutral-300 text-xs font-semibold">Vuoi tutte le foto del pomeriggio?</p>
+        <a href="https://wa.me/393277179868?text=Ciao!%20Vorrei%20informazioni%20per%20acquistare%20l%27album%20completo%20delle%20Foto%20Pomeridiane%20dell%27evento%20CintheC%20X"
+           target="_blank" rel="noopener" class="font-bold text-xs px-3 py-2.5 bg-[#262626] text-white hover:bg-[#3b3b3b] text-center shadow-sm flex items-center justify-center border border-neutral-700 transition-all hover:scale-[1.02]">
+          📁 Richiedi Album Completo
+        </a>
+      </div>
+      <div class="mb-3 mt-2 text-center bg-black/40 border border-neutral-800 py-2">
+        <p class="text-white text-xs font-bold">Vuoi solo uno scatto specifico? (5€ a foto)</p>
+        <p class="text-neutral-400 text-[10px]">Sfoglia la gallery qui sotto: passa il mouse (o fai tap) sulla foto e richiedila!</p>
+      </div>
+      </details>
+      <div class="album-toolbar">
+        <span>📸 <strong id="count-grid-pomeridiane" class="text-white">Caricamento album...</strong></span>
+        <span>Scorri le foto ↓ · Tocca per ingrandire · Richiedi sotto ogni foto</span>
+      </div>
+      <div id="grid-pomeridiane" class="album-photo-grid" aria-label="Fotografie dell'album"></div>
+    </div>
+  </div>
+
+  <!-- ===== VISUALIZZATORE FOTO: FRECCE, TASTIERA E SWIPE ===== -->
+  <div id="lightbox" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex flex-col items-center justify-center" role="dialog" aria-modal="true" aria-label="Visualizzatore fotografie" tabindex="-1">
+    <div class="gallery-lightbox-wrap">
+      <div class="gallery-lightbox-top">
+        <span id="lightbox-counter" class="font-extrabold text-xs sm:text-sm text-white bg-neutral-900 border border-neutral-700 px-3 py-2" aria-live="polite">Foto 1 di 1</span>
+        <button type="button" onclick="closeLightbox()" aria-label="Torna alla galleria" class="font-bold text-xs sm:text-sm text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 hover:border-[#00ff66] px-3 sm:px-4 py-2 transition-colors">✕ Chiudi foto</button>
+      </div>
+      <div class="gallery-lightbox-main" id="lightbox-swipe-area">
+        <div class="gallery-lightbox-stage">
+          <img id="lightbox-img" alt="Anteprima ingrandita della fotografia" />
+          <div class="watermark"><span class="text-lg">CintheC</span></div>
+        </div>
+        <button id="lightbox-prev" type="button" class="gallery-lightbox-arrow previous" onclick="moveLightbox(-1)" aria-label="Foto precedente">&#10094;</button>
+        <button id="lightbox-next" type="button" class="gallery-lightbox-arrow next" onclick="moveLightbox(1)" aria-label="Foto successiva">&#10095;</button>
+      </div>
+      <div class="gallery-lightbox-footer">
+        <p id="lightbox-caption" class="text-white font-extrabold text-xs sm:text-sm text-center">Anteprima foto</p>
+        <p class="text-neutral-400 text-[10px] sm:text-xs text-center">Usa le frecce ← → o scorri con il dito per cambiare foto</p>
+        <a id="lightbox-whatsapp" target="_blank" rel="noopener noreferrer" aria-disabled="true">💬 Richiedi foto a 5 €</a>
+      </div>
     </div>
   </div>
 
@@ -972,79 +1262,194 @@
     function filterCategory(category) {
       const sectionMma = document.getElementById('section-mma');
       const sectionK1 = document.getElementById('section-k1');
-      
+      const sectionPomeridiane = document.getElementById('section-pomeridiane');
+
       const btnAll = document.getElementById('btn-all');
       const btnMma = document.getElementById('btn-mma');
       const btnK1 = document.getElementById('btn-k1');
+      const btnPomeridiane = document.getElementById('btn-pomeridiane');
 
       const inactiveStyle = "flex-1 bg-neutral-900 hover:bg-neutral-800 text-white border-2 border-neutral-700 font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]";
+      const activeStyle = "flex-1 bg-white text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]";
 
-      btnAll.className = inactiveStyle;
-      btnMma.className = inactiveStyle;
-      btnK1.className = inactiveStyle;
+      const sections = { mma: sectionMma, k1: sectionK1, pomeridiane: sectionPomeridiane };
+      const buttons = { all: btnAll, mma: btnMma, k1: btnK1, pomeridiane: btnPomeridiane };
 
-      if (category === 'all') {
-        sectionMma.style.display = 'block';
-        sectionK1.style.display = 'block';
-        btnAll.className = "flex-1 bg-white text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]";
-      } else if (category === 'mma') {
-        sectionMma.style.display = 'block';
-        sectionK1.style.display = 'none';
-        btnMma.className = "flex-1 bg-white text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]";
-      } else if (category === 'k1') {
-        sectionMma.style.display = 'none';
-        sectionK1.style.display = 'block';
-        btnK1.className = "flex-1 bg-white text-black font-extrabold text-xs sm:text-base py-3 px-4 transition-all duration-300 shadow-xl uppercase tracking-wider text-center hover:scale-[1.02]";
+      Object.entries(sections).forEach(([key, section]) => {
+        if (section) section.style.display = (category === 'all' || category === key) ? 'block' : 'none';
+      });
+      Object.entries(buttons).forEach(([key, button]) => {
+        if (button) button.className = (category === key) ? activeStyle : inactiveStyle;
+      });
+    }
+
+    // Album fotografici: tutte le foto elencate subito, anteprime caricate solo quando servono.
+    const galleryAlbums = new Map();
+    let activeLightbox = null;
+    let lightboxRequestVersion = 0;
+    let lastFocusedPhoto = null;
+
+    async function getGalleryPhotoUrl(containerId, photoIndex) {
+      const album = galleryAlbums.get(containerId);
+      if (!album || !album.photos[photoIndex]) throw new Error('Foto non trovata');
+      const photo = album.photos[photoIndex];
+      if (!photo.urlPromise) {
+        photo.urlPromise = photo.ref.getDownloadURL();
       }
+      return photo.urlPromise;
+    }
+
+    // Il collegamento WhatsApp identifica in modo univoco la fotografia selezionata.
+    // WhatsApp Web/wa.me può preparare il testo con il link, ma non può allegare un file immagine automaticamente.
+    function buildPhotoWhatsAppLink(album, photo, imageUrl) {
+      const message = [
+        'Ciao! Vorrei acquistare questa foto a 5 €.',
+        '',
+        `📸 Foto: ${photo.ref.name}`,
+        `📁 Album: ${album.title}`,
+        `🔎 Riferimento: ${album.folderName}/${photo.ref.name}`,
+        '',
+        '🔗 Apri la foto che ho scelto:',
+        imageUrl
+      ].join('\n');
+      return `https://wa.me/393277179868?text=${encodeURIComponent(message)}`;
     }
 
     async function loadFirebasePhotos(folderName, containerId) {
       const container = document.getElementById(containerId);
-      if (!container) return;
-      if (container.dataset.loaded === "true") return;
-
-      container.innerHTML = '<p class="text-neutral-400 text-xs col-span-full text-center py-6 animate-pulse">Caricamento foto in corso...</p>';
+      if (!container || container.dataset.loaded === 'true' || container.dataset.loading === 'true') return;
+      container.dataset.loading = 'true';
+      const counter = document.getElementById(`count-${containerId}`);
+      container.innerHTML = '<p class="text-neutral-400 text-xs col-span-full text-center py-8 animate-pulse">Caricamento elenco delle foto...</p>';
 
       try {
-        const listRef = storage.ref().child(folderName);
-        const res = await listRef.listAll();
+        const response = await storage.ref().child(folderName).listAll();
+        const refs = response.items
+          .filter(item => /\.(jpe?g|png|webp|gif|avif)$/i.test(item.name))
+          .sort((a, b) => a.name.localeCompare(b.name, 'it', { numeric: true, sensitivity: 'base' }));
+        const albumTitle = container.closest('.album-modal')?.querySelector('h3')?.textContent?.trim() || folderName;
+        const album = { folderName, title: albumTitle, photos: refs.map(ref => ({ ref, urlPromise: null })) };
+        galleryAlbums.set(containerId, album);
+        const count = album.photos.length;
+        if (counter) counter.textContent = count === 1 ? '1 fotografia' : `${count} fotografie`;
 
-        if (res.items.length === 0) {
-          container.innerHTML = '<p class="text-neutral-500 text-xs col-span-full text-center py-6">Nessuna foto disponibile.</p>';
+        if (!count) {
+          container.innerHTML = '<p class="text-neutral-400 text-xs col-span-full text-center py-8">Nessuna foto disponibile in questo album.</p>';
+          container.dataset.loaded = 'true';
           return;
         }
 
-        container.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        album.photos.forEach((photo, index) => {
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'album-photo-card group';
+          card.setAttribute('aria-label', `Ingrandisci foto ${index + 1} di ${count}: ${photo.ref.name}`);
+          card.dataset.index = String(index);
+          card.onclick = () => openLightboxAt(containerId, index);
 
-        for (const itemRef of res.items) {
-          const url = await itemRef.getDownloadURL();
-          const fileName = itemRef.name;
-          const waUrl = `https://wa.me/393277179868?text=${encodeURIComponent(`Ciao! Vorrei acquistare questa foto (${folderName} / ${fileName}) al prezzo di 5€:${url}`)}`;
+          const img = document.createElement('img');
+          img.alt = `Foto ${index + 1}: ${photo.ref.name}`;
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.draggable = false;
 
-          const card = document.createElement('div');
-          card.className = "group relative aspect-[4/3] overflow-hidden cursor-pointer bg-black border border-neutral-800 shadow-md transition-all duration-300 hover:border-neutral-500";
-          card.onclick = () => openLightbox(url, `${folderName} / ${fileName}`);
-          
-          card.innerHTML = `
-            <img src="${url}" alt="${fileName}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none" loading="lazy" />
-            <div class="watermark"><span>CintheC</span></div>
-            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-              <a href="${waUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()"
-                 class="bg-white hover:bg-neutral-200 text-black font-extrabold text-xs py-2 px-4 rounded-full flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.8)] hover:scale-105">
-                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/>
-                </svg>
-                Richiedi • 5€
-              </a>
-            </div>
-          `;
-          container.appendChild(card);
+          const placeholder = document.createElement('div');
+          placeholder.className = 'album-photo-loading';
+          placeholder.textContent = 'Caricamento...';
+          const watermark = document.createElement('div');
+          watermark.className = 'watermark';
+          const watermarkText = document.createElement('span');
+          watermarkText.textContent = 'CintheC';
+          watermark.appendChild(watermarkText);
+          const number = document.createElement('div');
+          number.className = 'album-photo-index';
+          number.textContent = `${index + 1} / ${count}`;
+          card.append(img, placeholder, watermark, number);
+          const item = document.createElement('div');
+          item.className = 'album-photo-item';
+          const requestLink = document.createElement('a');
+          requestLink.className = 'album-photo-request';
+          requestLink.textContent = '💬 Richiedi foto a 5 €';
+          requestLink.setAttribute('aria-disabled', 'true');
+          requestLink.setAttribute('aria-label', `Richiedi su WhatsApp la foto ${index + 1} a 5 euro`);
+          requestLink.target = '_blank';
+          requestLink.rel = 'noopener noreferrer';
+          item.append(card, requestLink);
+          fragment.appendChild(item);
+        });
+        container.replaceChildren(fragment);
+        container.dataset.loaded = 'true';
+
+        const loadPreview = async (card) => {
+          const index = Number(card.dataset.index);
+          const img = card.querySelector('img');
+          try {
+            const url = await getGalleryPhotoUrl(containerId, index);
+            const requestLink = card.parentElement.querySelector('.album-photo-request');
+            requestLink.href = buildPhotoWhatsAppLink(album, album.photos[index], url);
+            requestLink.removeAttribute('aria-disabled');
+            img.addEventListener('load', () => card.classList.add('is-loaded'), { once: true });
+            img.addEventListener('error', () => {
+              card.classList.add('is-error');
+              card.querySelector('.album-photo-loading').textContent = 'Anteprima non disponibile';
+            }, { once: true });
+            img.src = url;
+          } catch (error) {
+            console.warn('Anteprima non disponibile:', error);
+            card.classList.add('is-error');
+            card.querySelector('.album-photo-loading').textContent = 'Anteprima non disponibile';
+          }
+        };
+
+        const cards = [...container.querySelectorAll('.album-photo-card')];
+        if ('IntersectionObserver' in window) {
+          const previewObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                observer.unobserve(entry.target);
+                loadPreview(entry.target);
+              }
+            });
+          }, { root: container, rootMargin: '450px 0px', threshold: 0 });
+          cards.forEach(card => previewObserver.observe(card));
+        } else {
+          cards.forEach(card => loadPreview(card));
         }
-
-        container.dataset.loaded = "true";
       } catch (error) {
-        console.error("Errore caricamento Storage:", error);
-        container.innerHTML = '<p class="text-red-400 text-xs col-span-full text-center py-6">Errore di connessione.</p>';
+        console.error('Errore caricamento Storage:', error);
+        container.innerHTML = '<p class="text-red-400 text-xs col-span-full text-center py-8">Impossibile caricare le foto. Riprova ad aprire l’album.</p>';
+        if (counter) counter.textContent = 'Errore nel caricamento';
+      } finally {
+        container.dataset.loading = 'false';
+      }
+    }
+
+    // Mostra automaticamente le prime foto caricate su Storage nella card della nuova galleria.
+    async function loadPomeridianePreview() {
+      const container = document.getElementById('pomeridiane-preview');
+      if (!container) return;
+
+      try {
+        const result = await storage.ref().child('foto-pomeridiane').listAll();
+        const imageRefs = result.items
+          .filter(item => /\.(jpe?g|png|webp|gif|avif)$/i.test(item.name))
+          .slice(0, 2);
+
+        if (imageRefs.length === 0) return;
+
+        const imageUrls = await Promise.all(imageRefs.map(item => item.getDownloadURL()));
+        container.className = 'photo-stack hidden sm:block';
+        container.innerHTML = '';
+        imageUrls.forEach(url => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'Anteprima foto pomeridiane';
+          img.loading = 'lazy';
+          container.appendChild(img);
+        });
+      } catch (error) {
+        console.warn('Anteprime pomeridiane non disponibili:', error);
       }
     }
 
@@ -1059,32 +1464,112 @@
     function closeModal(modalId) {
       const modal = document.getElementById(modalId);
       if (modal) {
+        if (activeLightbox) closeLightbox();
         modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
+        document.body.style.overflow = '';
       }
     }
 
-    function openLightbox(imgSrc, captionText) {
+    function openLightboxAt(containerId, index) {
+      const album = galleryAlbums.get(containerId);
+      if (!album || !album.photos.length) return;
+      lastFocusedPhoto = document.activeElement;
+      activeLightbox = { containerId, index };
       const lightbox = document.getElementById('lightbox');
-      const lightboxImg = document.getElementById('lightbox-img');
-      const lightboxCaption = document.getElementById('lightbox-caption');
-      const lightboxWhatsapp = document.getElementById('lightbox-whatsapp');
-
-      lightboxImg.src = imgSrc;
-      lightboxCaption.textContent = "Anteprima foto in bassa qualità";
-      
-      const waText = encodeURIComponent(`Ciao! Vorrei acquistare questa specifica foto (${captionText}) al prezzo di 5€: ${imgSrc}`);
-      lightboxWhatsapp.href = `https://wa.me/393277179868?text=${waText}`;
-
-      lightbox.classList.add('flex');
       lightbox.classList.remove('hidden');
+      lightbox.classList.add('flex');
+      lightbox.focus({ preventScroll: true });
+      showLightboxPhoto();
+    }
+
+    async function showLightboxPhoto() {
+      if (!activeLightbox) return;
+      const { containerId, index } = activeLightbox;
+      const album = galleryAlbums.get(containerId);
+      if (!album) return;
+      const photo = album.photos[index];
+      const version = ++lightboxRequestVersion;
+      const img = document.getElementById('lightbox-img');
+      const caption = document.getElementById('lightbox-caption');
+      const counter = document.getElementById('lightbox-counter');
+      const whatsapp = document.getElementById('lightbox-whatsapp');
+      img.removeAttribute('src');
+      img.alt = `Fotografia ${index + 1} dell'album`;
+      caption.textContent = 'Caricamento fotografia...';
+      counter.textContent = `Foto ${index + 1} di ${album.photos.length}`;
+      whatsapp.style.pointerEvents = 'none';
+      whatsapp.style.opacity = '.5';
+      whatsapp.setAttribute('aria-disabled', 'true');
+      whatsapp.removeAttribute('href');
+      document.getElementById('lightbox-prev').hidden = album.photos.length < 2;
+      document.getElementById('lightbox-next').hidden = album.photos.length < 2;
+
+      try {
+        const url = await getGalleryPhotoUrl(containerId, index);
+        if (!activeLightbox || version !== lightboxRequestVersion) return;
+        img.src = url;
+        caption.textContent = 'Anteprima fotografica • Richiedi l’originale senza filigrana';
+        whatsapp.href = buildPhotoWhatsAppLink(album, photo, url);
+        whatsapp.removeAttribute('aria-disabled');
+        whatsapp.style.pointerEvents = '';
+        whatsapp.style.opacity = '';
+        // Carica in anticipo soltanto la foto successiva per rendere fluido lo scorrimento.
+        if (album.photos.length > 1) {
+          getGalleryPhotoUrl(containerId, (index + 1) % album.photos.length).catch(() => {});
+        }
+      } catch (error) {
+        if (!activeLightbox || version !== lightboxRequestVersion) return;
+        console.warn('Foto non disponibile:', error);
+        caption.textContent = 'Foto non disponibile, prova con un’altra immagine';
+      }
+    }
+
+    function moveLightbox(direction) {
+      if (!activeLightbox) return;
+      const album = galleryAlbums.get(activeLightbox.containerId);
+      if (!album || album.photos.length < 2) return;
+      activeLightbox.index = (activeLightbox.index + direction + album.photos.length) % album.photos.length;
+      showLightboxPhoto();
     }
 
     function closeLightbox() {
       const lightbox = document.getElementById('lightbox');
       lightbox.classList.add('hidden');
       lightbox.classList.remove('flex');
+      lightboxRequestVersion++;
+      activeLightbox = null;
+      if (lastFocusedPhoto && document.contains(lastFocusedPhoto)) {
+        lastFocusedPhoto.focus({ preventScroll: true });
+      }
     }
+
+    document.addEventListener('keydown', (event) => {
+      if (activeLightbox) {
+        if (event.key === 'ArrowLeft') { event.preventDefault(); moveLightbox(-1); }
+        if (event.key === 'ArrowRight') { event.preventDefault(); moveLightbox(1); }
+        if (event.key === 'Escape') { event.preventDefault(); closeLightbox(); }
+      } else if (event.key === 'Escape') {
+        const openAlbum = document.querySelector('.album-modal:not(.hidden)');
+        if (openAlbum) closeModal(openAlbum.id);
+      }
+    });
+
+    // Su smartphone puoi cambiare foto anche con uno swipe orizzontale.
+    let touchStart = null;
+    const swipeArea = document.getElementById('lightbox-swipe-area');
+    swipeArea.addEventListener('touchstart', (event) => {
+      if (!activeLightbox || event.touches.length !== 1) return;
+      touchStart = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+    }, { passive: true });
+    swipeArea.addEventListener('touchend', (event) => {
+      if (!touchStart || !activeLightbox || event.changedTouches.length !== 1) return;
+      const dx = event.changedTouches[0].clientX - touchStart.x;
+      const dy = event.changedTouches[0].clientY - touchStart.y;
+      touchStart = null;
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+        moveLightbox(dx < 0 ? 1 : -1);
+      }
+    }, { passive: true });
 
     document.addEventListener("DOMContentLoaded", function() {
       const observer = new IntersectionObserver((entries) => {
@@ -1096,6 +1581,7 @@
       document.querySelectorAll('.reveal-item').forEach(el => observer.observe(el));
 
       loadAutoCarousel();
+      loadPomeridianePreview();
     });
   </script>
 </body>
